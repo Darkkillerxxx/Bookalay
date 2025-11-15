@@ -1,0 +1,226 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Child Registration | Library</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        background: #f3f0ff;
+        font-family: 'Inter', sans-serif;
+    }
+    .main-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #7a3cff;
+    }
+    .section-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: #5b2ecc;
+    }
+    .card-custom {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 20px 30px;
+        background: #ffffffcc;
+        backdrop-filter: blur(6px);
+    }
+    .divider {
+        height: 1px;
+        background: #e5e1ff;
+        margin: 25px 0;
+    }
+    .btn-purple {
+        background: linear-gradient(to right, #923bff, #3f5efb);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        border-radius: 8px;
+    }
+</style>
+
+</head>
+
+<body>
+	<form action="RegisterController" method="post"> 
+	    <input type="hidden" name="action" value="register"/>
+	
+		<div class="container py-5">
+		    <h2 class="text-center main-title">Join Our Reading Community</h2>
+		    <p class="text-center text-muted mb-4">
+		        Register your child to start their exciting reading journey
+		    </p>
+		
+		    <div class="card card-custom mx-auto" style="max-width: 850px;padding:0px">
+		
+		        <!-- Child Information -->
+		        <div class="mb-3">
+		            
+		            <div style="background-color:#f5f5ff">
+						<h5 class="section-title p-3">
+			                <i class="bi bi-person-circle me-2"></i> Child Information
+			            </h5>
+		            </div>
+		
+		            <div class="row g-3 p-3">
+		                <div class="col-md-6">
+		                    <label class="form-label">Child’s Full Name *</label>
+		                    <input type="text" class="form-control" name="childName" placeholder="Enter child's name">
+		                </div>
+		                <div class="col-md-6">
+		                    <label class="form-label">Age *</label>
+		                    <select class="form-select" name="age">
+		                        <option>Select age</option>
+		                        <option>5</option>
+		                        <option>6</option>
+		                        <option>7</option>
+		                    </select>
+		                </div>
+		                <div class="col-md-6">
+		                    <label class="form-label" name="grade">Grade *</label>
+		                    <select class="form-select">
+		                        <option>Select grade</option>
+		                        <option>Grade 5</option>
+		                        <option>Grade 6</option>
+		                        <option>Grade 7</option>
+		                    </select>
+		                </div>
+		            </div>
+		
+		            <div class="mt-3 p-3">
+		                <label class="form-label">Interests * (Select all that apply)</label>
+		                <div class="row">
+		                    <div class="col-md-4"><input name="interests" value="Animals" type="checkbox"> Animals</div>
+		                    <div class="col-md-4"><input name="interests" value="Sports" type="checkbox"> Sports</div>
+		                    <div class="col-md-4"><input name="interests" value="Science" type="checkbox"> Science</div>
+		                    <div class="col-md-4"><input name="interests" value="Art" type="checkbox"> Art</div>
+		                    <div class="col-md-4"><input name="interests" value="Music" type="checkbox"> Music</div>
+		                    <div class="col-md-4"><input name="interests" value="Technology" type="checkbox"> Technology</div>
+		                    <div class="col-md-4"><input name="interests" value="Nature" type="checkbox"> Nature</div>
+		                    <div class="col-md-4"><input name="interests" value="Adventure" type="checkbox"> Adventure</div>
+		                </div>
+		            </div>
+		        </div>
+		
+		        <div class="divider mb-0"></div>
+		
+		        <!-- Parent Contact Information -->
+		        <div class="mb-3">
+					<div style="background-color:#f5f5ff">
+						<h5 class="section-title p-3">
+			                <i class="bi bi-person-check me-2"></i> Parent Contact Information
+			            </h5>
+					</div>
+		            
+		
+		            <div class="row g-3 p-3">
+		                <div class="col-md-6">
+		                    <label class="form-label">Parent/Guardian Name *</label>
+		                    <input type="text" class="form-control" name="parentName" placeholder="Enter your name">
+		                </div>
+		                <div class="col-md-6">
+		                    <label class="form-label">Phone Number</label>
+		                    <input type="text" class="form-control" name="phone" placeholder="(123) 456-7890">
+		                </div>
+		                <div class="col-md-6">
+		                    <label class="form-label">Email Address *</label>
+		                    <input type="email" class="form-control" name="email" placeholder="your@email.com">
+		                </div>
+		            </div>
+		        </div>
+				
+				
+				<div class="divider mb-0"></div>
+				                
+		        <!-- Parent User Setup -->
+				<div class="mb-3">
+				    <div style="background-color:#f5f5ff">
+				        <h5 class="section-title p-3">
+				            <i class="bi bi-person-gear me-2"></i> Parent User Setup
+				        </h5>
+				    </div>
+				
+				    <div class="row g-3 p-3">
+				        <div class="col-md-6">
+				            <label class="form-label">Username *</label>
+				            <input type="text" class="form-control" name="username" placeholder="Enter username">
+				        </div>
+				
+				        <div class="col-md-6">
+				            <label class="form-label">Password *</label>
+				            <input type="password" class="form-control" name="password" placeholder="Enter password">
+				        </div>
+				
+				        <div class="col-md-6">
+				            <label class="form-label">Re-enter Password *</label>
+				            <input type="password" class="form-control" name="reEnteredPassword" placeholder="Re-enter password">
+				        </div>
+				    </div>
+				</div>
+		
+		
+		        <div class="divider mb-0"></div>
+		
+		        <!-- Reading Preferences -->
+		        <div>
+		        	<div style="background-color:#f5f5ff">        
+			            <h5 class="section-title p-3">
+			                <i class="bi bi-book-heart me-2"></i> Reading Preferences
+			            </h5>
+			        </div>
+					
+					<div class="p-3">
+			            <label class="form-label mt-2">Current Reading Level</label>
+			            <select class="form-select mb-3">
+			                <option>Select reading level</option>
+			            </select>
+			
+			            <label class="form-label">Favorite Genres * (Select all that apply)</label>
+			            <div class="row mb-3">
+			                <div class="col-md-4"><input name="genres" value="Fiction" type="checkbox"> Fiction</div>
+			                <div class="col-md-4"><input name="Genres" value="Non-fiction" type="checkbox"> Non-fiction</div>
+			                <div class="col-md-4"><input name="Genres" value="Fantasy" type="checkbox"> Fantasy</div>
+			                <div class="col-md-4"><input name="Genres" value="Mystery" type="checkbox"> Mystery</div>
+			                <div class="col-md-4"><input name="Genres" value="Science Fiction" type="checkbox"> Science Fiction</div>
+			                <div class="col-md-4"><input name="Genres" value="Biography" type="checkbox"> Biography</div>
+			                <div class="col-md-4"><input name="Genres" value="Comics" type="checkbox"> Comics</div>
+			                <div class="col-md-4"><input name="Genres" value="Poetry" type="checkbox"> Poetry</div>
+			            </div>
+			
+			            <label class="form-label">Reading Frequency</label>
+			            <input type="text" class="form-control mb-3" name="readingFrequency" placeholder="How often does your child read?">
+			
+			            <label class="form-label">Additional Notes</label>
+			            <textarea class="form-control" rows="3" name="notes" placeholder="Any specific preferences or learning goals..."></textarea>
+		            </div>
+		        </div>
+		
+		        <!-- Submit -->
+		        <div class="p-3">
+		            <button class="btn btn-purple">Complete Registration</button>
+		        </div>
+		
+		        <p class="text-center text-muted small mt-3">
+		            By registering, you agree to receive personalized book recommendations and reading resources.
+		        </p>
+		    </div>		
+		</div>
+	</form>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
