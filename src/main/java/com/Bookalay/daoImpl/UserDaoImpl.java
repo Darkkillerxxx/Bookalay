@@ -18,7 +18,7 @@ public class UserDaoImpl implements UserDao {
 		ResultSet rs = null;
 		PreparedStatement preparedStatement = null;
 		
-		String query = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
+		String query = "SELECT * FROM user WHERE username = ? AND password_hash = ?";
 		
 		try {
 			conn = DbUtil.getConnection();

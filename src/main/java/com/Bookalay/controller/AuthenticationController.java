@@ -43,6 +43,15 @@ public class AuthenticationController extends HttpServlet {
 			
 			if(user != null) {
 				System.out.print("User Found");
+				System.out.print(user.getUserType());
+				if(user.getUserType().equalsIgnoreCase("admin")) {
+					RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
+					dispatcher.forward(request, response);
+				}
+				else {
+					RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
+					dispatcher.forward(request, response);
+				}
 			}
 			else {
 				request.setAttribute("errorMessage","Invalid Username Or Password");
