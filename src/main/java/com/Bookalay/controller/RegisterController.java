@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.Bookalay.pojo.Transaction;
+import com.Bookalay.service.UserService;
+import com.Bookalay.serviceImpl.UserServiceImpl;
+
 /**
  * Servlet implementation class RegisterController
  */
@@ -23,16 +27,88 @@ public class RegisterController extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+    
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getParameter("action");
-		
+		System.out.println(action);
 		if("registerNewUser".equalsIgnoreCase(action)) {
 			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/register.jsp");
 			dispatcher.forward(request, response);
+		}
+		else if ("register".equalsIgnoreCase(action)) {
+
+		    // Child info
+		    String childName = request.getParameter("childName");
+		    String age = request.getParameter("age");
+		    String gender = request.getParameter("gender");
+		    String readingLevel = request.getParameter("readingLevel");
+		    String interests = request.getParameterValues("interests") != null ? String.join(",", request.getParameterValues("interests")) : ""; 
+		    
+		    // Parent info
+		    String parentName = request.getParameter("parentName");
+		    String phone = request.getParameter("phone");
+		    String email = request.getParameter("email");
+
+		    // Login setup
+		    String username = request.getParameter("username");
+		    String password = request.getParameter("password");
+		    String reEnteredPassword = request.getParameter("reEnteredPassword");
+
+		    // Reading preferences
+		    String genres = request.getParameterValues("genres") != null ? String.join(",", request.getParameterValues("genres")) : "";   // FIX name in JSP!
+		    String readingFrequency = request.getParameter("readingFrequency");
+		    String notes = request.getParameter("notes");
+		    
+		    formValidator(request,response,interests,username, password,reEnteredPassword, genres);
+
+			UserService userService = new UserServiceImpl();
+			
+			Transaction transaction = userService.insertUser(username, password, childName, age, gender, interests, parentName, phone, email, readingLevel, genres, readingFrequency, notes);
+			request.setAttribute("showToast", true);
+			request.setAttribute("toastMessage", transaction.getMessage());
+			request.getRequestDispatcher("jsp/register.jsp").forward(request, response);
+			
+			System.out.print(transaction.getMessage());
+			// Now you can save this to DB or process it
+		}
+	}
+	
+	private void formValidator(HttpServletRequest request,HttpServletResponse response,String interests,String username, String password, String reEnteredPassword, String genres) { 
+		 try {
+			 boolean hasValidationError = false;
+			 
+			 if(username.length() == 0 || username == null) {
+			    request.setAttribute("errorMessage", "Please enter your Username");
+			    hasValidationError = true;
+			}
+			else if(interests.length() == 0 || interests == null) {
+			    request.setAttribute("errorMessage", "Please Select atleast one interest");
+			    hasValidationError = true;
+			}
+			else if(password.length() == 0 || password == null) {
+			    request.setAttribute("errorMessage", "Please Enter Your Password");
+			    hasValidationError = true;
+			}
+			else if(!password.equalsIgnoreCase(reEnteredPassword)) {
+			    request.setAttribute("errorMessage", "Your Password and Re-Entered Passwords do not Match");
+			    hasValidationError = true;
+			}
+			else if(genres.length() == 0 || genres == null) {
+			    request.setAttribute("errorMessage", "Please Select atleast one Genres");
+			    hasValidationError = true;
+			}
+						
+			if(hasValidationError) {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/register.jsp");
+				dispatcher.forward(request, response);
+			}
+		} catch (ServletException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
