@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,9 +55,31 @@
     }
 </style>
 
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+	    <% if (request.getAttribute("showToast") != null) { %>
+	        var toastEl = document.getElementById('liveToast');
+	        var toast = new bootstrap.Toast(toastEl);
+	        toast.show();
+	    <% } %>
+	});
+</script>
+
 </head>
 
 <body>
+	<div class="toast-container position-fixed top-0 end-0 p-3">
+	  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+	    <div class="toast-header">
+	      <strong class="me-auto">Library System</strong>
+	      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+	    </div>
+	    <div class="toast-body">
+	      <c:out value="${toastMessage}" />
+	    </div>
+	  </div>
+	</div>
+
 	<form action="RegisterController" method="post"> 
 	    <input type="hidden" name="action" value="register"/>
 	
@@ -64,9 +88,17 @@
 		    <p class="text-center text-muted mb-4">
 		        Register your child to start their exciting reading journey
 		    </p>
+		    
+		 
 		
 		    <div class="card card-custom mx-auto" style="max-width: 850px;padding:0px">
-		
+			    <c:if test="${not empty errorMessage}">
+					<div class="alert alert-danger alert-dismissible fade show" role="alert">
+						<c:out value="${errorMessage}"/>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+			    </c:if>
+			    
 		        <!-- Child Information -->
 		        <div class="mb-3">
 		            
@@ -79,24 +111,23 @@
 		            <div class="row g-3 p-3">
 		                <div class="col-md-6">
 		                    <label class="form-label">Child’s Full Name *</label>
-		                    <input type="text" class="form-control" name="childName" placeholder="Enter child's name">
+		                    <input type="text" class="form-control" name="childName" placeholder="Enter child's name" required>
 		                </div>
 		                <div class="col-md-6">
 		                    <label class="form-label">Age *</label>
-		                    <select class="form-select" name="age">
-		                        <option>Select age</option>
+		                    <select class="form-select" name="age" required>
+		                        <option value="">Select age</option>
 		                        <option>5</option>
 		                        <option>6</option>
 		                        <option>7</option>
 		                    </select>
 		                </div>
 		                <div class="col-md-6">
-		                    <label class="form-label" name="grade">Grade *</label>
-		                    <select class="form-select">
-		                        <option>Select grade</option>
-		                        <option>Grade 5</option>
-		                        <option>Grade 6</option>
-		                        <option>Grade 7</option>
+		                    <label class="form-label">Gender *</label>
+		                    <select class="form-select" name="gender" required>
+		                        <option value="">Select Gender</option>
+		                        <option>Boy</option>
+		                        <option>Girl</option>
 		                    </select>
 		                </div>
 		            </div>
@@ -130,7 +161,7 @@
 		            <div class="row g-3 p-3">
 		                <div class="col-md-6">
 		                    <label class="form-label">Parent/Guardian Name *</label>
-		                    <input type="text" class="form-control" name="parentName" placeholder="Enter your name">
+		                    <input type="text" class="form-control" name="parentName" placeholder="Enter your name" required>
 		                </div>
 		                <div class="col-md-6">
 		                    <label class="form-label">Phone Number</label>
@@ -138,7 +169,7 @@
 		                </div>
 		                <div class="col-md-6">
 		                    <label class="form-label">Email Address *</label>
-		                    <input type="email" class="form-control" name="email" placeholder="your@email.com">
+		                    <input type="email" class="form-control" name="email" placeholder="your@email.com" required>
 		                </div>
 		            </div>
 		        </div>
@@ -157,17 +188,17 @@
 				    <div class="row g-3 p-3">
 				        <div class="col-md-6">
 				            <label class="form-label">Username *</label>
-				            <input type="text" class="form-control" name="username" placeholder="Enter username">
+				            <input type="text" class="form-control" name="username" placeholder="Enter username" required>
 				        </div>
 				
 				        <div class="col-md-6">
 				            <label class="form-label">Password *</label>
-				            <input type="password" class="form-control" name="password" placeholder="Enter password">
+				            <input type="password" class="form-control" type="Password" name="password" placeholder="Enter password" required>
 				        </div>
 				
 				        <div class="col-md-6">
 				            <label class="form-label">Re-enter Password *</label>
-				            <input type="password" class="form-control" name="reEnteredPassword" placeholder="Re-enter password">
+				            <input type="password" class="form-control" type="Password" name="reEnteredPassword" placeholder="Re-enter password" required>
 				        </div>
 				    </div>
 				</div>
@@ -185,8 +216,11 @@
 					
 					<div class="p-3">
 			            <label class="form-label mt-2">Current Reading Level</label>
-			            <select class="form-select mb-3">
-			                <option>Select reading level</option>
+			            <select class="form-select mb-3" name="readingLevel">
+			                <option value="">Select reading level</option>
+			                <option>Beginner</option>
+			                <option>Intermediate</option>
+			                <option>Expert</option>
 			            </select>
 			
 			            <label class="form-label">Favorite Genres * (Select all that apply)</label>
@@ -208,7 +242,7 @@
 			            <textarea class="form-control" rows="3" name="notes" placeholder="Any specific preferences or learning goals..."></textarea>
 		            </div>
 		        </div>
-		
+		        
 		        <!-- Submit -->
 		        <div class="p-3">
 		            <button class="btn btn-purple">Complete Registration</button>

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.Bookalay.dao.UserDao;
+import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
 import com.Bookalay.util.DbUtil;
 
@@ -63,7 +64,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void insertUser(String Username, String Password, String childName, String age, String gender,
+	public Transaction insertUser(String Username, String Password, String childName, String age, String gender,
 	        String interests, String parentName, String phoneNumber, String email, String readingLevel,
 	        String genres, String readingFrequency, String notes) {
 
@@ -73,6 +74,8 @@ public class UserDaoImpl implements UserDao {
 	    PreparedStatement psChild = null;
 	    ResultSet rsUser = null;
 	    ResultSet rsParent = null;
+
+	    Transaction transaction = new Transaction();
 
 	    try {
 
@@ -87,22 +90,19 @@ public class UserDaoImpl implements UserDao {
 	        psUser.setString(2, Password);
 
 	        int userRows = psUser.executeUpdate();
-
 	        int userId = 0;
 
 	        if (userRows > 0) {
 	            rsUser = psUser.getGeneratedKeys();
-	            if (rsUser.next()) {
-	                userId = rsUser.getInt(1);
-	            }
+	            if (rsUser.next()) userId = rsUser.getInt(1);
 	        }
 
 	        // ❌ If userId not generated → STOP
 	        if (userId == 0) {
-	            System.out.println("User insert failed. Parent & Child NOT inserted.");
-	            return;
+	            transaction.setSuccess(false);
+	            transaction.setMessage("User could not be created !!!");
+	            return transaction;
 	        }
-
 
 	        // ----------------------- 2️⃣ INSERT PARENT -----------------------
 	        String sqlParent = "INSERT INTO parent (user_id, parent_name, email, phone, registration_date) "
@@ -115,22 +115,19 @@ public class UserDaoImpl implements UserDao {
 	        psParent.setString(4, phoneNumber);
 
 	        int parentRows = psParent.executeUpdate();
-
 	        int parentId = 0;
 
 	        if (parentRows > 0) {
 	            rsParent = psParent.getGeneratedKeys();
-	            if (rsParent.next()) {
-	                parentId = rsParent.getInt(1);
-	            }
+	            if (rsParent.next()) parentId = rsParent.getInt(1);
 	        }
 
-	        // ❌ If parentId not generated → STOP
+	        // ❌ If parent insert failed → STOP
 	        if (parentId == 0) {
-	            System.out.println("Parent insert failed. Child NOT inserted.");
-	            return;
+	            transaction.setSuccess(false);
+	            transaction.setMessage("Parent record could not be created !!! Please contact your Admin.");
+	            return transaction;
 	        }
-
 
 	        // ----------------------- 3️⃣ INSERT CHILD -----------------------
 	        String sqlChild = "INSERT INTO child (parent_id, child_name, age, gender, interests, reading_level, genres, "
@@ -149,11 +146,21 @@ public class UserDaoImpl implements UserDao {
 
 	        psChild.executeUpdate();
 
-	        System.out.println("User, Parent, Child inserted successfully.");
+	        // SUCCESS
+	        transaction.setSuccess(true);
+	        transaction.setMessage("Your Child Has Been Successfully Registered !!! "
+	                + "Kindly wait as your record is being Approved By the Admin");
+
+	        return transaction;
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
+	        transaction.setSuccess(false);
+	        transaction.setMessage("An error occurred while processing your request.");
+	        return transaction;
+
 	    } finally {
+
 	        try {
 	            if (rsUser != null) rsUser.close();
 	            if (rsParent != null) rsParent.close();
@@ -166,4 +173,5 @@ public class UserDaoImpl implements UserDao {
 	        }
 	    }
 	}
+
 }

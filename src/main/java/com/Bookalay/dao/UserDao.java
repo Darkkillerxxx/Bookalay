@@ -1,11 +1,12 @@
 package com.Bookalay.dao;
 
+import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
 
 public interface UserDao {
 	
 	public User checkLogin(String Username,String Password);
-	public void insertUser(
+	public Transaction insertUser(
 			String Username, 
 			String Password, 
 			String childName, 
