@@ -1,0 +1,46 @@
+@charset "UTF-8";
+
+body {
+	background: #f8f9fc;
+}
+
+.card {
+	border: none;
+	border-radius: 15px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filter-card {
+	background: #ffffff;
+	padding: 20px;
+	border-radius: 15px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.nav-link.active {
+	font-weight: bold;
+	border-bottom: 2px solid #6f42c1;
+}
+
+.book-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.booksCard {
+    height: 420px;     /* adjust as needed */
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+.booksCard img {
+    height: 180px;     /* fixed cover image height */
+    object-fit: contain;
+}
+
+.booksCard:hover{
+	transform: scale(1.05);       /* enlarge smoothly */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
