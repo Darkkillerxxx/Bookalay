@@ -34,7 +34,7 @@
 			<li class="nav-item"><a class="nav-link" href="#">Home</a></li>
 			<li class="nav-item"><a class="nav-link"
 				href="DashboardController?action=manageBooks">Books Management</a></li>
-			<li class="nav-item"><a class="nav-link" href="#">Approvals</a></li>
+			<li class="nav-item"><a class="nav-link" href="ManageApprovalsController?action=manageApprovals">Approvals</a></li>
 			<li class="nav-item"><a class="nav-link" href="#">Members/Users</a></li>
 			<li class="nav-item"><a class="nav-link" href="#">Issues /
 					Return Management</a></li>

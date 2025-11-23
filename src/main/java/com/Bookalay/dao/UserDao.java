@@ -1,5 +1,8 @@
 package com.Bookalay.dao;
 
+import java.util.List;
+
+import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
 
@@ -21,4 +24,7 @@ public interface UserDao {
 			String readingFrequency,
 			String notes
 			);
+	public List<ParentUser> fetchParentUsersForApproval(String search);
+	public ParentUser fetchUserDetails(String userId);
+	public Transaction approveUserDetails(String parentId);
 }
