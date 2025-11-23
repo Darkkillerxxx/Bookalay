@@ -7,52 +7,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Library Management</title>
+<title>Login | Library</title>
+
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/common.css">
-<link rel="stylesheet" href="assets/css/auth.css">
+
+<style>
+    body {
+        background: #f3f0ff;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .login-wrapper {
+        max-width: 450px;
+        margin: 80px auto;
+    }
+
+    .card-custom {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        background: #ffffffcc;
+        padding: 30px;
+        backdrop-filter: blur(6px);
+    }
+
+    .main-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #7a3cff;
+        text-align: center;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #6b6a75;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: #5b2ecc;
+    }
+
+    .btn-purple {
+        background: linear-gradient(to right, #923bff, #3f5efb);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .forgot-link {
+        text-decoration: none;
+        color: #7a3cff;
+        font-weight: 500;
+    }
+
+    .forgot-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        <% if (request.getAttribute("showToast") != null) { %>
+            var toastEl = document.getElementById('liveToast');
+            new bootstrap.Toast(toastEl).show();
+        <% } %>
+    });
+</script>
+
 </head>
-<body class="auth-page">
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <div class="login-icon">
-                <i class="bi bi-book-half"></i>
-            </div>
-            <h3 class="login-title">Welcome Back</h3>
-            <p class="login-subtitle">Please sign in to your library account</p>
-        </div>
-        
+<body>
+
+<!-- Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">Library System</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body">
+      <c:out value="${toastMessage}" />
+    </div>
+  </div>
+</div>
+
+<div class="login-wrapper">
+    
+    <h2 class="main-title">Welcome Back</h2>
+    <p class="subtitle">Access your Bookalay account</p>
+
+    <div class="card card-custom">
+		 <!-- Logo -->
+	    <div class="text-center mb-3">
+	        <img src="https://media.istockphoto.com/id/877235850/vector/book-icon.jpg?s=612x612&w=0&k=20&c=FSTH3SrcKKTSH09LLkucwABRWOKHRYPmEjxqBjEDjxc=" alt="Bookalay Logo" style="width: 150px;">
+	    </div>
+	    
         <c:if test="${not empty errorMessage}">
-			<div class="alert alert-danger alert-dismissible fade show" role="alert">
-					<c:out value="${errorMessage}"/>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <c:out value="${errorMessage}"/>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         </c:if>
-		
 
         <form action="AuthenticationController" method="post">
-        	<input type="hidden" name="action" value="authenticate"/>
-            <div class="form-floating">
-                <input type="text" class="form-control" name="username" id="username" placeholder="Username">
-                <label for="username"><i class="bi bi-person-fill me-2"></i>Username</label>
-            </div>
+            <input type="hidden" name="action" value="authenticate"/>
 
-            <div class="form-floating">
-                <input type="password" class="form-control" name="password" id="password" placeholder="Password">
-                <label for="password"><i class="bi bi-lock-fill me-2"></i>Password</label>
-            </div>
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control mb-3" name="username" placeholder="Enter username" required>
 
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="remember">
-                <label class="form-check-label" for="remember">
-                    Remember me
-                </label>
-            </div>
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control mb-3" name="password" placeholder="Enter password" required>
 
-            <button type="submit" class="btn btn-login">
+            <button type="submit" class="btn btn-purple">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
             </button>
 
@@ -60,32 +137,15 @@
                 <a href="#" class="forgot-link">Forgot your password?</a>
             </div>
 
-            <div class="divider">
-                <span>or</span>
-            </div>
-
-            <div class="text-center">
-                <p class="mb-0">Don't have an account? <a href="RegisterController?action=registerNewUser" class="forgot-link">Sign up here</a></p>
+            <div class="text-center mt-3 text-muted">
+                Don't have an account? 
+                <a href="RegisterController?action=registerNewUser" class="forgot-link">Sign Up</a>
             </div>
         </form>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Add subtle animation to form elements
-    document.addEventListener('DOMContentLoaded', function() {
-        const formControls = document.querySelectorAll('.form-control');
 
-        formControls.forEach(control => {
-            control.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'translateY(-2px)';
-            });
-
-            control.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'translateY(0)';
-            });
-        });
-    });
-</script>
 </body>
 </html>
