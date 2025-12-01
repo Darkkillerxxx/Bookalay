@@ -49,10 +49,10 @@ public class AuthenticationController extends HttpServlet {
 		            if(user != null) {
 		                System.out.println("User Found: " + user.getUserType());
 		                HttpSession session = request.getSession();
-		                
+		                session.setAttribute("user", user);
+	                    request.setAttribute("loginSuccess", true);
+	                    
 		                if(user.getUserType().equalsIgnoreCase("admin")) {
-		                    session.setAttribute("user", user);
-		                    request.setAttribute("loginSuccess", true);
 		                    RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
 		                    dispatcher.forward(request, response);
 		                } else {

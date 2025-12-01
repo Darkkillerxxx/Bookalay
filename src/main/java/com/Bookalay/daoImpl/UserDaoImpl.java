@@ -12,6 +12,7 @@ import com.Bookalay.pojo.ChildUser;
 import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.UserProfile;
 import com.Bookalay.util.DbUtil;
 
 public class UserDaoImpl implements UserDao {
@@ -242,6 +243,218 @@ public class UserDaoImpl implements UserDao {
 
 		return nonApprovedParents;
 	}
+	
+	@Override
+	public List<ParentUser> fetchAllUsers(String search) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		List<ParentUser> nonApprovedParents = new ArrayList<>();
+
+		String query = "SELECT p.parent_id, p.user_id, p.parent_name, p.email, p.phone, p.registration_date, "
+				+ "u.username, u.user_type, u.is_active, u.created_date " + "FROM parent p "
+				+ "INNER JOIN user u ON p.user_id = u.user_id " + "WHERE u.is_active = 1"
+				+ "AND (p.parent_name LIKE ? OR p.email LIKE ? OR u.username LIKE ?)";
+
+		try {
+			conn = DbUtil.getConnection();
+			ps = conn.prepareStatement(query);
+
+			String like = "%" + search + "%";
+
+			ps.setString(1, like);
+			ps.setString(2, like);
+			ps.setString(3, like);
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				ParentUser parent = new ParentUser();
+
+				parent.setParentId(rs.getInt("parent_id"));
+				parent.setUserId(rs.getInt("user_id"));
+				parent.setParentName(rs.getString("parent_name"));
+				parent.setEmail(rs.getString("email"));
+				parent.setPhone(rs.getString("phone"));
+
+				parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
+
+				nonApprovedParents.add(parent);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (ps != null)
+					ps.close();
+				if (conn != null)
+					conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return nonApprovedParents;
+	}
+	
+	@Override
+	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive) {
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
+
+	    List<ParentUser> updatedParents = new ArrayList<>();
+
+	    try {
+	        conn = DbUtil.getConnection();
+
+	        // 1. Get user_id corresponding to parent_id
+	        String getUserQuery = "SELECT user_id FROM parent WHERE parent_id = ?";
+	        ps = conn.prepareStatement(getUserQuery);
+	        ps.setString(1, parentId);
+	        rs = ps.executeQuery();
+
+	        Integer userId = null;
+	        if (rs.next()) {
+	            userId = rs.getInt("user_id");
+	        }
+	        rs.close();
+	        ps.close();
+
+	        if (userId != null) {
+	            // 2. Update user table to set is_active
+	            String updateQuery = "UPDATE user SET is_active = ? WHERE user_id = ?";
+	            ps = conn.prepareStatement(updateQuery);
+	            ps.setBoolean(1, isActive);
+	            ps.setInt(2, userId);
+	            ps.executeUpdate();
+	            ps.close();
+
+	            // 3. Optionally, return the updated parent info
+	            String selectQuery = "SELECT p.parent_id, p.user_id, p.parent_name, p.email, p.phone, "
+	                    + "p.registration_date, u.username, u.user_type, u.is_active, u.created_date "
+	                    + "FROM parent p INNER JOIN user u ON p.user_id = u.user_id WHERE p.parent_id = ?";
+	            ps = conn.prepareStatement(selectQuery);
+	            ps.setString(1, parentId);
+	            rs = ps.executeQuery();
+
+	            while (rs.next()) {
+	                ParentUser parent = new ParentUser();
+	                parent.setParentId(rs.getInt("parent_id"));
+	                parent.setUserId(rs.getInt("user_id"));
+	                parent.setParentName(rs.getString("parent_name"));
+	                parent.setEmail(rs.getString("email"));
+	                parent.setPhone(rs.getString("phone"));
+	                parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
+	                parent.setActive(rs.getBoolean("is_active")); 
+	                updatedParents.add(parent);
+	            }
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (rs != null) rs.close();
+	            if (ps != null) ps.close();
+	            if (conn != null) conn.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    return updatedParents;
+	}
+	
+	@Override
+	public UserProfile fetchUserProfile(String parentId) {
+
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
+
+	    String query = "SELECT "
+	            + "u.user_id, u.username, u.password_hash, u.user_type, u.last_login, "
+	            + "u.is_active, u.created_date, u.isApproved, "
+	            + "p.parent_id, p.parent_name, p.email, p.phone, p.registration_date, "
+	            + "c.child_id, c.child_name, c.age, c.gender, c.interests, "
+	            + "c.reading_level, c.genres, c.reading_frequency, c.notes "
+	            + "FROM parent p "
+	            + "JOIN user u ON p.user_id = u.user_id "
+	            + "LEFT JOIN child c ON p.parent_id = c.parent_id "
+	            + "WHERE p.parent_id = ?";
+
+	    UserProfile profile = new UserProfile();
+	    ParentUser parent = new ParentUser();
+	    User user = new User();
+	    ChildUser child = null;
+
+	    try {
+	        conn = DbUtil.getConnection();
+	        ps = conn.prepareStatement(query);
+	        ps.setString(1, parentId);
+	        rs = ps.executeQuery();
+
+	        if (rs.next()) {
+
+	            // USER FIELDS
+	            user.setUserId(rs.getInt("user_id"));
+	            user.setUsername(rs.getString("username"));
+	            user.setPasswordHash(rs.getString("password_hash"));
+	            user.setUserType(rs.getString("user_type"));
+	            user.setLastLogin(rs.getString("last_login"));
+	            user.setActive(rs.getBoolean("is_active"));
+	            user.setCreatedDate(rs.getString("created_date"));
+
+	            // PARENT FIELDS
+	            parent.setParentId(rs.getInt("parent_id"));
+	            parent.setParentName(rs.getString("parent_name"));
+	            parent.setEmail(rs.getString("email"));
+	            parent.setPhone(rs.getString("phone"));
+	            parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
+
+	            // CHILD (only one)
+	            int childId = rs.getInt("child_id");
+	            if (childId != 0) {
+	                child = new ChildUser();
+	                child.setChildId(childId);
+	                child.setParentId(rs.getInt("parent_id"));
+	                child.setChildName(rs.getString("child_name"));
+	                child.setAge(rs.getInt("age"));
+	                child.setGender(rs.getString("gender"));
+	                child.setInterests(rs.getString("interests"));
+	                child.setReadingLevel(rs.getString("reading_level"));
+	                child.setGenres(rs.getString("genres"));
+	                child.setReadingFrequency(rs.getString("reading_frequency"));
+	                child.setNotes(rs.getString("notes"));
+	            }
+	        }
+
+	        profile.setUser(user);
+	        profile.setParent(parent);
+	        profile.setChild(child);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (rs != null) rs.close();
+	            if (ps != null) ps.close();
+	            if (conn != null) conn.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    return profile;
+	}
+
+
 
 	@Override
 	public ParentUser fetchUserDetails(String parentId) {
@@ -378,4 +591,8 @@ public class UserDaoImpl implements UserDao {
 
 	    return transaction;
 	}
+	
+	
+	
+	
 }

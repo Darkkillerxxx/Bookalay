@@ -5,6 +5,7 @@ import java.util.List;
 import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.UserProfile;
 
 public interface UserDao {
 	
@@ -27,4 +28,7 @@ public interface UserDao {
 	public List<ParentUser> fetchParentUsersForApproval(String search);
 	public ParentUser fetchUserDetails(String userId);
 	public Transaction approveUserDetails(String parentId);
+	public List<ParentUser> fetchAllUsers(String search);
+	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive);
+	public UserProfile fetchUserProfile(String parentId);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.UserProfile;
 
 public interface UserService {
 
@@ -13,4 +14,5 @@ public interface UserService {
 	public List<ParentUser> fetchParentUsersForApproval(String searchText);
 	public ParentUser fetchUserDetails(String parentId);
 	public Transaction approveUserDetails(String parentId);
+	public UserProfile fetchUserProfile(String parentId);
 }
