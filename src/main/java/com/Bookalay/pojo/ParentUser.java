@@ -11,6 +11,7 @@ public class ParentUser {
     private String email;
     private String phone;
     private LocalDateTime registrationDate;
+    private Boolean isActive;
     private List<ChildUser> childUsers;
 
     // ===== Getters and Setters =====
@@ -33,6 +34,10 @@ public class ParentUser {
 
     public String getParentName() {
         return parentName;
+    }
+    
+    public Boolean getIsActive() {
+        return isActive;
     }
 
     public void setParentName(String parentName) {
@@ -70,4 +75,9 @@ public class ParentUser {
     public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
     }
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+		
+	}
 }

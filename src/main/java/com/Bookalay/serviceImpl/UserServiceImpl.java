@@ -7,6 +7,7 @@ import com.Bookalay.daoImpl.UserDaoImpl;
 import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.UserProfile;
 import com.Bookalay.service.UserService;
 
 public class UserServiceImpl implements UserService {
@@ -40,6 +41,12 @@ public class UserServiceImpl implements UserService {
 	public Transaction approveUserDetails(String parentId) {
 		// TODO Auto-generated method stub
 		return userDao.approveUserDetails(parentId);
+	}
+	
+	@Override
+	public UserProfile fetchUserProfile(String parentId) {
+		// TODO Auto-generated method stub
+		return userDao.fetchUserProfile(parentId);
 	}
 
 }
