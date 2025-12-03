@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.Bookalay.dao.RequestDao;
 import com.Bookalay.pojo.Request;
+import com.Bookalay.pojo.Transaction;
 import com.Bookalay.util.DbUtil;
 
 public class RequestDaoImpl implements RequestDao {
@@ -58,7 +60,7 @@ public class RequestDaoImpl implements RequestDao {
     }
     
     @Override
-    public List<Request> fetchRequestsDetailsById(String id) {
+    public List<Request> fetchRequestsDetailsById(int id) {
 
         List<Request> list = new ArrayList<>();
         Connection conn = null;
@@ -85,7 +87,7 @@ public class RequestDaoImpl implements RequestDao {
                 "ORDER BY r.request_date DESC";
 
             ps = conn.prepareStatement(query);
-            ps.setString(1, id);
+            ps.setInt(1, id);   // FIXED
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -136,7 +138,7 @@ public class RequestDaoImpl implements RequestDao {
                 req.setAvailableCopies(rs.getInt("available_copies"));
                 req.setDateAdded(rs.getString("date_added"));
 
-                // User fields (if in POJO)
+                // User fields
                 req.setUsername(rs.getString("username"));
                 req.setUserType(rs.getString("user_type"));
                 req.setLastLogin(rs.getString("last_login"));
@@ -157,5 +159,96 @@ public class RequestDaoImpl implements RequestDao {
 
         return list;
     }
-    
+
+    @Override
+    public Transaction raiseRequest(int userId, String bookId, Date requestDate, String additionalNotes) {
+
+        Transaction t = new Transaction();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DbUtil.getConnection();
+
+            /* -----------------------------------
+               1. Get Parent ID using User ID
+            ------------------------------------- */
+            String getParent = "SELECT parent_id FROM parent WHERE user_id = ?";
+            ps = conn.prepareStatement(getParent);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            int parentId = 0;
+            if (rs.next()) parentId = rs.getInt("parent_id");
+            else {
+                t.setSuccess(false);
+                t.setMessage("Parent record not found.");
+                return t;
+            }
+            rs.close();
+            ps.close();
+
+            /* -----------------------------------
+               2. Get Child ID from Parent ID
+            ------------------------------------- */
+            String getChild = "SELECT child_id FROM child WHERE parent_id = ? LIMIT 1";
+            ps = conn.prepareStatement(getChild);
+            ps.setInt(1, parentId);
+            rs = ps.executeQuery();
+
+            int childId = 0;
+            if (rs.next()) childId = rs.getInt("child_id");
+            else {
+                t.setSuccess(false);
+                t.setMessage("No child found for this parent.");
+                return t;
+            }
+            rs.close();
+            ps.close();
+
+            /* -----------------------------------
+               3. Insert into requests table
+            ------------------------------------- */
+            String insertSql = """
+                INSERT INTO requests
+                    (parent_id, child_id, book_id, due_date, notes)
+                VALUES (?, ?, ?, ?, ?);
+            """;
+
+            ps = conn.prepareStatement(insertSql);
+            ps.setInt(1, parentId);
+            ps.setInt(2, childId);
+            ps.setInt(3, Integer.parseInt(bookId));
+            ps.setTimestamp(4, new java.sql.Timestamp(requestDate.getTime()));
+            ps.setString(5, additionalNotes);
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                t.setSuccess(true);
+                t.setMessage("Request raised successfully!");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("Could not raise request.");
+            }
+
+        } catch (Exception e) {
+            t.setSuccess(false);
+            t.setMessage("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return t;
+    }
+
+	@Override
+	public List<Request> raiseRequestById(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

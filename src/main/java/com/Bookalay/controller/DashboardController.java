@@ -2,6 +2,7 @@ package com.Bookalay.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,9 +11,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.Bookalay.daoImpl.BookDaoImpl;
 import com.Bookalay.pojo.Book;
+import com.Bookalay.pojo.Request;
 import com.Bookalay.service.BookService;
+import com.Bookalay.service.DashboardService;
 import com.Bookalay.serviceImpl.BookServiceImpl;
+import com.Bookalay.serviceImpl.DashboardServiceImpl;
 
 /**
  * Servlet implementation class DashboardController
@@ -39,6 +44,10 @@ public class DashboardController extends HttpServlet {
 		System.out.print(action);
 		switch (action) {
 		case "manageBooks":
+			com.Bookalay.pojo.User user = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
+			if(user.getUserType() == "admin") {
+				request.setAttribute("isAdmin", true);
+			}
 
 			String search = request.getParameter("search");
 
@@ -60,6 +69,62 @@ public class DashboardController extends HttpServlet {
 
 			break;
 
+		case "viewBooksDetails":
+			String bookIdStr = request.getParameter("bookId");
+			if (bookIdStr != null) {
+				int bookId = Integer.parseInt(bookIdStr);
+				BookDaoImpl bookDao = new BookDaoImpl();
+				Book book = bookDao.getBookById(bookId);
+
+				request.setAttribute("book", book);
+				RequestDispatcher bookDetailsDispatcher = request.getRequestDispatcher("jsp/viewBookDetail.jsp");
+				bookDetailsDispatcher.forward(request, response);
+			}
+			break;
+
+		case "home":
+			com.Bookalay.pojo.User loggedInUser = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
+			if (loggedInUser.getUserType() == "admin") {
+				RequestDispatcher adminDispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
+				adminDispatcher.forward(request, response);
+			} else {
+				DashboardService dashboardService = new DashboardServiceImpl();
+				  // In real app, get parentId from logged-in user/session
+		        String parentIdParam = request.getParameter("parentId");
+		        int parentId = (parentIdParam != null) ? Integer.parseInt(parentIdParam) : 1;
+
+		        // 1) Top metrics
+		        int totalRequests       = dashboardService.getTotalRequests(parentId);
+		        int booksIssued         = dashboardService.getBooksCurrentlyIssued(parentId);
+		        int overdueCount        = dashboardService.getOverdueBooksCount(parentId);
+		        int dueSoonCount        = dashboardService.getUpcomingDue(parentId, 3).size();
+		        int booksReturned       = dashboardService.getBooksReturned(parentId);
+		        Map<String,Integer> byStatus = dashboardService.getCountsByStatus(parentId);
+
+		        request.setAttribute("totalRequests", totalRequests);
+		        request.setAttribute("booksIssued", booksIssued);
+		        request.setAttribute("overdueCount", overdueCount);
+		        request.setAttribute("dueSoonCount", dueSoonCount);
+		        request.setAttribute("booksReturned", booksReturned);
+		        request.setAttribute("statusCounts", byStatus);
+
+		        // 2) Tables
+		        List<Request> recentRequests = dashboardService.getRecentRequests(parentId, 5);
+		        List<Request> issuedBooks    = dashboardService.getIssuedBooks(parentId);
+		        List<Request> overdueBooks   = dashboardService.getOverdueBooks(parentId);
+		        List<Request> returnedBooks  = dashboardService.getReturnedBooks(parentId);
+		        List<Request> upcomingDue    = dashboardService.getUpcomingDue(parentId, 7);
+
+		        request.setAttribute("recentRequests", recentRequests);
+		        request.setAttribute("issuedBooks", issuedBooks);
+		        request.setAttribute("overdueBooks", overdueBooks);
+		        request.setAttribute("returnedBooks", returnedBooks);
+		        request.setAttribute("upcomingDue", upcomingDue);
+
+				RequestDispatcher parentDispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
+				parentDispatcher.forward(request, response);
+			}
+			break;
 		default:
 			break;
 		}

@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 <!-- Navigation Tabs -->
 <ul class="nav nav-tabs mb-4">
-    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="AuthenticationController?action=home">Home</a></li>
     <li class="nav-item"><a class="nav-link" href="DashboardController?action=manageBooks">View Books</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Raise a Request</a></li>
+    <li class="nav-item"><a class="nav-link" href="RequestController?action=viewRequestParent">View Your Requests</a></li>
     <li class="nav-item"><a class="nav-link" href="ManageUsersController?action=viewProfile">Your Profile</a></li>
 </ul>
