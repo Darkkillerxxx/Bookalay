@@ -81,6 +81,17 @@ public class AuthenticationController extends HttpServlet {
 		            response.getWriter().println("</script>");
 		        	break;
 		        	
+		        case "home":
+		    		com.Bookalay.pojo.User loggedInUser = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
+		    		if(loggedInUser.getUserType() == "admin") {
+		    			 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
+	                     dispatcher.forward(request, response);
+		    		}else {
+		    			 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
+		                 dispatcher.forward(request, response);
+		    		}
+		        	break;
+		        	
 		        default:
 		            System.out.println("No Action Found");
 		            break;

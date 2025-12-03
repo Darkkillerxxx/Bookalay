@@ -98,6 +98,7 @@ public class ManageApprovalsController extends HttpServlet {
 	                   .forward(request, response);
 
 	            break;
+	            
 	        default:
 	            break;
 	    }

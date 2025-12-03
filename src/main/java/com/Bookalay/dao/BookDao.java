@@ -7,4 +7,6 @@ import com.Bookalay.pojo.Book;
 public interface BookDao {
 	
 	public List<Book> fetchAvailableBooks(String search, String interests, String genres);
+
+	public Book getBookById(int bookId);
 }
