@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.Bookalay.daoImpl.BookDaoImpl;
 import com.Bookalay.pojo.Book;
 import com.Bookalay.pojo.Request;
-import com.Bookalay.service.BookService;
 import com.Bookalay.service.DashboardService;
-import com.Bookalay.serviceImpl.BookServiceImpl;
 import com.Bookalay.serviceImpl.DashboardServiceImpl;
 
 /**
@@ -43,32 +41,7 @@ public class DashboardController extends HttpServlet {
 		String action = request.getParameter("action").trim();
 		System.out.print(action);
 		switch (action) {
-		case "manageBooks":
-			com.Bookalay.pojo.User user = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
-			if(user.getUserType() == "admin") {
-				request.setAttribute("isAdmin", true);
-			}
-
-			String search = request.getParameter("search");
-
-			// Multiple checkboxes → arrays
-			String[] interestsArr = request.getParameterValues("interests");
-			String[] genresArr = request.getParameterValues("genres");
-
-			// Convert arrays → comma separated lists
-			String interests = (interestsArr != null) ? String.join(",", interestsArr) : null;
-			String genres = (genresArr != null) ? String.join(",", genresArr) : null;
-
-			BookService bookService = new BookServiceImpl();
-			List<Book> fetchedBooksList = bookService.fetchAvailableBooks(search, interests, genres);
-
-			request.setAttribute("booksList", fetchedBooksList);
-
-			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/viewBooks.jsp");
-			dispatcher.forward(request, response);
-
-			break;
-
+		
 		case "viewBooksDetails":
 			String bookIdStr = request.getParameter("bookId");
 			if (bookIdStr != null) {
@@ -89,37 +62,37 @@ public class DashboardController extends HttpServlet {
 				adminDispatcher.forward(request, response);
 			} else {
 				DashboardService dashboardService = new DashboardServiceImpl();
-				  // In real app, get parentId from logged-in user/session
-		        String parentIdParam = request.getParameter("parentId");
-		        int parentId = (parentIdParam != null) ? Integer.parseInt(parentIdParam) : 1;
+				// In real app, get parentId from logged-in user/session
+				String parentIdParam = request.getParameter("parentId");
+				int parentId = (parentIdParam != null) ? Integer.parseInt(parentIdParam) : 1;
 
-		        // 1) Top metrics
-		        int totalRequests       = dashboardService.getTotalRequests(parentId);
-		        int booksIssued         = dashboardService.getBooksCurrentlyIssued(parentId);
-		        int overdueCount        = dashboardService.getOverdueBooksCount(parentId);
-		        int dueSoonCount        = dashboardService.getUpcomingDue(parentId, 3).size();
-		        int booksReturned       = dashboardService.getBooksReturned(parentId);
-		        Map<String,Integer> byStatus = dashboardService.getCountsByStatus(parentId);
+				// 1) Top metrics
+				int totalRequests = dashboardService.getTotalRequests(parentId);
+				int booksIssued = dashboardService.getBooksCurrentlyIssued(parentId);
+				int overdueCount = dashboardService.getOverdueBooksCount(parentId);
+				int dueSoonCount = dashboardService.getUpcomingDue(parentId, 3).size();
+				int booksReturned = dashboardService.getBooksReturned(parentId);
+				Map<String, Integer> byStatus = dashboardService.getCountsByStatus(parentId);
 
-		        request.setAttribute("totalRequests", totalRequests);
-		        request.setAttribute("booksIssued", booksIssued);
-		        request.setAttribute("overdueCount", overdueCount);
-		        request.setAttribute("dueSoonCount", dueSoonCount);
-		        request.setAttribute("booksReturned", booksReturned);
-		        request.setAttribute("statusCounts", byStatus);
+				request.setAttribute("totalRequests", totalRequests);
+				request.setAttribute("booksIssued", booksIssued);
+				request.setAttribute("overdueCount", overdueCount);
+				request.setAttribute("dueSoonCount", dueSoonCount);
+				request.setAttribute("booksReturned", booksReturned);
+				request.setAttribute("statusCounts", byStatus);
 
-		        // 2) Tables
-		        List<Request> recentRequests = dashboardService.getRecentRequests(parentId, 5);
-		        List<Request> issuedBooks    = dashboardService.getIssuedBooks(parentId);
-		        List<Request> overdueBooks   = dashboardService.getOverdueBooks(parentId);
-		        List<Request> returnedBooks  = dashboardService.getReturnedBooks(parentId);
-		        List<Request> upcomingDue    = dashboardService.getUpcomingDue(parentId, 7);
+				// 2) Tables
+				List<Request> recentRequests = dashboardService.getRecentRequests(parentId, 5);
+				List<Request> issuedBooks = dashboardService.getIssuedBooks(parentId);
+				List<Request> overdueBooks = dashboardService.getOverdueBooks(parentId);
+				List<Request> returnedBooks = dashboardService.getReturnedBooks(parentId);
+				List<Request> upcomingDue = dashboardService.getUpcomingDue(parentId, 7);
 
-		        request.setAttribute("recentRequests", recentRequests);
-		        request.setAttribute("issuedBooks", issuedBooks);
-		        request.setAttribute("overdueBooks", overdueBooks);
-		        request.setAttribute("returnedBooks", returnedBooks);
-		        request.setAttribute("upcomingDue", upcomingDue);
+				request.setAttribute("recentRequests", recentRequests);
+				request.setAttribute("issuedBooks", issuedBooks);
+				request.setAttribute("overdueBooks", overdueBooks);
+				request.setAttribute("returnedBooks", returnedBooks);
+				request.setAttribute("upcomingDue", upcomingDue);
 
 				RequestDispatcher parentDispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
 				parentDispatcher.forward(request, response);

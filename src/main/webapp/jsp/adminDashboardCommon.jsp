@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
 <!-- Navigation Tabs -->
 <ul class="nav nav-tabs mb-4">
     <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-    <li class="nav-item"><a class="nav-link" href="DashboardController?action=manageBooks">Books Management</a></li>
+    <li class="nav-item"><a class="nav-link" href="BooksController?action=manageBooks">Books Management</a></li>
     <li class="nav-item"><a class="nav-link" href="ManageApprovalsController?action=manageApprovals">Approvals</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Members/Users</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Requests</a></li>
+   <!-- <li class="nav-item"><a class="nav-link" href="#">Members/Users</a></li> -->
+    <li class="nav-item"><a class="nav-link" href="RequestController?action=viewRequest">Requests</a></li>
 </ul>

@@ -192,7 +192,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 "FROM requests r " +
                 "JOIN book b ON r.book_id = b.book_id " +
                 "WHERE r.parent_id = ? AND r.status = 'issued' AND r.due_date < NOW() AND r.returned_date IS NULL " +
-                "ORDER BY days_overdue DESC";
+                "ORDER BY days_overdue DESC LIMIT 5";
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

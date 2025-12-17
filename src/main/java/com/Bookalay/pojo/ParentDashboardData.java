@@ -12,11 +12,11 @@ public class ParentDashboardData {
     private int booksReturned;
 
     // ----------- TABLES -----------
-    private List<RecentRequest> recentBookRequests;
-    private List<IssuedBook> booksCurrentlyIssuedList;
-    private List<OverdueBook> overdueBooks;
-    private List<ReturnedBookHistory> returnedBooksHistory;
-    private List<UpcomingReturn> upcomingReturns;
+    private List<Request> recentBookRequests;
+    private List<Request> booksCurrentlyIssuedList;
+    private List<Request> overdueBooks;
+    private List<Request> returnedBooksHistory;
+    private List<Request> upcomingReturns;
 
     // ----------- GETTERS & SETTERS -----------
 
@@ -60,64 +60,48 @@ public class ParentDashboardData {
         this.booksReturned = booksReturned;
     }
 
-    public List<RecentRequest> getRecentBookRequests() {
+    public List<Request> getRecentBookRequests() {
         return recentBookRequests;
     }
 
-    public void setRecentBookRequests(List<RecentRequest> recentBookRequests) {
+    public void setRecentBookRequests(List<Request> recentBookRequests) {
         this.recentBookRequests = recentBookRequests;
     }
 
-    public List<IssuedBook> getBooksCurrentlyIssuedList() {
+    public List<Request> getBooksCurrentlyIssuedList() {
         return booksCurrentlyIssuedList;
     }
 
-    public void setBooksCurrentlyIssuedList(List<IssuedBook> booksCurrentlyIssuedList) {
+    public void setBooksCurrentlyIssuedList(List<Request> booksCurrentlyIssuedList) {
         this.booksCurrentlyIssuedList = booksCurrentlyIssuedList;
     }
 
-    public List<OverdueBook> getOverdueBooks() {
+    public List<Request> getOverdueBooks() {
         return overdueBooks;
     }
 
-    public void setOverdueBooks(List<OverdueBook> overdueBooks) {
+    public void setOverdueBooks(List<Request> overdueBooks) {
         this.overdueBooks = overdueBooks;
     }
 
-    public List<ReturnedBookHistory> getReturnedBooksHistory() {
+    public List<Request> getReturnedBooksHistory() {
         return returnedBooksHistory;
     }
 
-    public void setReturnedBooksHistory(List<ReturnedBookHistory> returnedBooksHistory) {
+    public void setReturnedBooksHistory(List<Request> returnedBooksHistory) {
         this.returnedBooksHistory = returnedBooksHistory;
     }
 
-    public List<UpcomingReturn> getUpcomingReturns() {
+    public List<Request> getUpcomingReturns() {
         return upcomingReturns;
     }
 
-    public void setUpcomingReturns(List<UpcomingReturn> upcomingReturns) {
+    public void setUpcomingReturns(List<Request> upcomingReturns) {
         this.upcomingReturns = upcomingReturns;
     }
 
     // ----------- INNER POJO CLASSES -----------
 
-    // 1. RECENT REQUESTS
-    public static class RecentRequest {
-        private String bookName;
-        private String requestedDate;
-        private String status; // Pending, Approved, Rejected
-
-        // Getters & Setters
-        public String getBookName() { return bookName; }
-        public void setBookName(String bookName) { this.bookName = bookName; }
-
-        public String getRequestedDate() { return requestedDate; }
-        public void setRequestedDate(String requestedDate) { this.requestedDate = requestedDate; }
-
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-    }
 
     // 2. BOOKS CURRENTLY ISSUED
     public static class IssuedBook {
@@ -159,35 +143,15 @@ public class ParentDashboardData {
         public void setDaysOverdue(String daysOverdue) { this.daysOverdue = daysOverdue; }
     }
 
-    // 4. RETURNED HISTORY
-    public static class ReturnedBookHistory {
-        private String bookName;
-        private String issuedOn;
-        private String returnedOn;
 
-        public String getBookName() { return bookName; }
-        public void setBookName(String bookName) { this.bookName = bookName; }
-
-        public String getIssuedOn() { return issuedOn; }
-        public void setIssuedOn(String issuedOn) { this.issuedOn = issuedOn; }
-
-        public String getReturnedOn() { return returnedOn; }
-        public void setReturnedOn(String returnedOn) { this.returnedOn = returnedOn; }
-    }
-
-    // 5. UPCOMING RETURNS
-    public static class UpcomingReturn {
-        private String bookName;
-        private String dueDate;
-        private String status; // Due Tomorrow, Due Soon etc.
-
-        public String getBookName() { return bookName; }
-        public void setBookName(String bookName) { this.bookName = bookName; }
-
-        public String getDueDate() { return dueDate; }
-        public void setDueDate(String dueDate) { this.dueDate = dueDate; }
-
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
+    
+    @Override
+    public String toString() {
+        return "ParentDashboardData{" +
+                "totalBooksRequested=" + totalBooksRequested +
+                ", booksCurrentlyIssued=" + booksCurrentlyIssued +
+                ", booksOverdue=" + booksOverdue +
+                ", booksReturned=" + booksReturned +
+                '}';
     }
 }
