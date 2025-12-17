@@ -13,7 +13,100 @@ import com.Bookalay.pojo.Transaction;
 import com.Bookalay.util.DbUtil;
 
 public class RequestDaoImpl implements RequestDao {
+	
+	@Override
+	public List<Request> fetchActiveRequestForParentAndBook(String userId, String bookId) {
+	    List<Request> list = new ArrayList<>();
 
+	    String sql = "SELECT r.*, "
+	            + "p.name AS parent_name, p.email AS parent_email, p.phone AS parent_phone, "
+	            + "c.name AS child_name, c.age AS child_age, c.gender AS child_gender, "
+	            + "c.interests AS child_interests, c.reading_level AS child_reading_level, "
+	            + "c.genres AS child_genres, c.reading_frequency AS child_reading_frequency, "
+	            + "c.notes AS child_notes, "
+	            + "b.book_name, b.author AS book_author, b.interest AS book_interest, "
+	            + "b.genre AS book_genre, b.difficulty AS book_difficulty, b.series_name, "
+	            + "b.page_count, b.summary, b.cover_art, b.is_available, "
+	            + "b.total_copies, b.available_copies, b.date_added "
+	            + "FROM requests r "
+	            + "JOIN parents p ON r.parent_id = p.parent_id "
+	            + "JOIN children c ON r.child_id = c.child_id "
+	            + "JOIN books b ON r.book_id = b.book_id "
+	            + "WHERE r.status = 'issued' "
+	            + "AND r.issued_date >= CURDATE() "
+	            + "AND r.parent_id = ? "
+	            + "AND r.book_id = ?";
+
+	    try (Connection con = DbUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, Integer.parseInt(userId));
+	        ps.setInt(2, Integer.parseInt(bookId));
+
+	        try (ResultSet rs = ps.executeQuery()) {
+	            while (rs.next()) {
+	                Request r = new Request();
+
+	                // ===== Request Fields =====
+	                r.setRequestId(rs.getInt("request_id"));
+	                r.setParentId(rs.getInt("parent_id"));
+	                r.setChildId(rs.getInt("child_id"));
+	                r.setBookId(rs.getInt("book_id"));
+	                r.setStatus(rs.getString("status"));
+	                r.setRequestDate(rs.getString("request_date"));
+	                r.setApprovalDate(rs.getString("approval_date"));
+	                r.setIssuedDate(rs.getString("issued_date"));
+	                r.setDueDate(rs.getString("due_date"));
+	                r.setReturnedDate(rs.getString("returned_date"));
+	                r.setNotes(rs.getString("notes"));
+	                r.setApprovedBy(rs.getInt("approved_by"));
+
+	                // NEW FIELD — request_duration
+	                r.setRequestDuration(rs.getInt("request_duration"));
+
+	                // ===== Parent Fields =====
+	                r.setParentName(rs.getString("parent_name"));
+	                r.setParentEmail(rs.getString("parent_email"));
+	                r.setParentPhone(rs.getString("parent_phone"));
+
+	                // ===== Child Fields =====
+	                r.setChildName(rs.getString("child_name"));
+	                r.setChildAge(rs.getInt("child_age"));
+	                r.setChildGender(rs.getString("child_gender"));
+	                r.setChildInterests(rs.getString("child_interests"));
+	                r.setChildReadingLevel(rs.getString("child_reading_level"));
+	                r.setChildGenres(rs.getString("child_genres"));
+	                r.setChildReadingFrequency(rs.getString("child_reading_frequency"));
+	                r.setChildNotes(rs.getString("child_notes"));
+
+	                // ===== Book Fields =====
+	                r.setBookName(rs.getString("book_name"));
+	                r.setBookAuthor(rs.getString("book_author"));
+	                r.setBookInterest(rs.getString("book_interest"));
+	                r.setBookGenre(rs.getString("book_genre"));
+	                r.setBookDifficulty(rs.getString("book_difficulty"));
+	                r.setSeriesName(rs.getString("series_name"));
+	                r.setPageCount(rs.getInt("page_count"));
+	                r.setSummary(rs.getString("summary"));
+	                r.setCoverArt(rs.getString("cover_art"));
+	                r.setIsAvailable(rs.getInt("is_available"));
+	                r.setTotalCopies(rs.getInt("total_copies"));
+	                r.setAvailableCopies(rs.getInt("available_copies"));
+	                r.setDateAdded(rs.getString("date_added"));
+
+	                list.add(r);
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
+
+
+	
     @Override
     public List<Request> fetchActiveRequests() {
 

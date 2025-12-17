@@ -17,6 +17,7 @@ public class Request {
     private String returnedDate;
     private String notes;
     private Integer approvedBy;
+    private Integer requestDuration;
 
     // ===== Parent fields (from parent table) =====
     private String parentEmail;
@@ -182,5 +183,13 @@ public class Request {
 
     public int getUserApproved() { return userApproved; }
     public void setUserApproved(int userApproved) { this.userApproved = userApproved; }
+
+	public Integer getRequestDuration() {
+		return requestDuration;
+	}
+
+	public void setRequestDuration(Integer requestDuration) {
+		this.requestDuration = requestDuration;
+	}
 
 }

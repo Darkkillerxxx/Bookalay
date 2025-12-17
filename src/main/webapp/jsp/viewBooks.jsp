@@ -36,8 +36,8 @@ body {
 }
 
 .card-img-top {
-	height: 180px;
-	object-fit: cover;
+	height: 250px;
+	object-fit: fit;
 }
 
 .card-body {
@@ -72,19 +72,25 @@ body {
 
 <body>
 	<div class="container-fluid p-4">
-	
+
 		<c:if test="${isAdmin}">
-		    <%@ include file="adminDashboardCommon.jsp" %>
+			<%@ include file="adminDashboardCommon.jsp"%>
+
+			<div class="d-flex w-100 justify-content-end mb-4">
+				<a href="BooksController?action=createEditBooks" class="btn btn-primary">Create New Book</a>
+			</div>
 		</c:if>
-		
+
 		<c:if test="${!isAdmin}">
-		    <%@ include file="adminDashboardCommon.jsp" %>
+			<%@ include file="parentDashboardCommon.jsp"%>
 		</c:if>
+
+
 
 		<div class="row">
 			<!-- LEFT FILTER COLUMN -->
 			<div class="col-md-3">
-				<form action="DashboardController" method="GET">
+				<form action="BooksController" method="GET">
 					<input type="hidden" name="action" value="manageBooks" />
 
 					<div class="filter-card mb-4">
@@ -120,7 +126,7 @@ body {
 				<div class="row g-4">
 
 					<c:forEach var="book" items="${booksList}">
-						<div class="col-md-4 d-flex">
+						<div class="col-md-3 d-flex">
 							<a
 								href="DashboardController?action=viewBooksDetails&bookId=${book.bookId}"
 								style="text-decoration: none; color: inherit; width: 100%;">
@@ -155,7 +161,6 @@ body {
 							</a>
 						</div>
 					</c:forEach>
-
 				</div>
 			</div>
 		</div>

@@ -91,8 +91,14 @@ body {
 
 <body>
 
-	<div class="container mt-4">
-		<%@ include file="parentDashboardCommon.jsp"%>
+	<div class="container-fluid p-4">
+		<c:if test="${!isAdmin}">
+			<%@ include file="parentDashboardCommon.jsp"%>		
+		</c:if>
+		
+		<c:if test="${isAdmin}">
+			<%@ include file="adminDashboardCommon.jsp"%>		
+		</c:if>
 		
 		<div class="book-container mt-3">
 
@@ -115,15 +121,11 @@ body {
 				</div>
 
 				<!-- Summary -->
-				<p class="mt-3 text-muted" style="max-width: 480px;">
+				<p class="mt-3 text-muted" style="max-width:95%;">
 					${book.summary}</p>
 
 				<!-- Info Section -->
 				<div class="mt-3">
-
-					<div class="info-row mb-1">
-						<strong>Publisher:</strong> Thomas Nelson Inc.
-					</div>
 					<div class="info-row mb-1">
 						<strong>Published:</strong> ${book.dateAdded}
 					</div>
@@ -148,10 +150,24 @@ body {
 
 
 				<!-- Action Buttons -->
-				<div class="mt-4">
-					<a href="RequestController?action=showRequestForm&bookId=${book.bookId}" class="primary-button bg-primary">Request this book</a>
-				</div>
-
+				<c:if test="${!isAdmin}">
+					<div class="mt-4">
+						<a href="RequestController?action=showRequestForm&bookId=${book.bookId}" class="btn btn-primary">Request this book</a>
+					</div>
+				</c:if>
+				
+				<c:if test="${isAdmin}">
+					<div class="d-flex mt-3">
+						<a href="BooksController?action=editBookForm" style="margin-right:10px" class="btn btn-warning">Edit Details</a>
+						<c:if test="${book.available}">
+							<a href="BooksController?action=toggleAvailability&bookId=${book.bookId}" class="btn btn-danger">Inactivate this book</a>
+						</c:if>
+						<c:if test="${!book.available}">
+							<a href="BooksController?action=toggleAvailability&bookId=${book.bookId}" class="btn btn-success">Activate this Book</a>
+						</c:if>
+					</div>
+				</c:if>
+				
 			</div>
 
 		</div>

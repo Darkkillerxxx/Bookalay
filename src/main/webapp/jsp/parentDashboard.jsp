@@ -1,333 +1,356 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
 <title>Parent Dashboard</title>
+
+<style type="text/css">
+<
+style>.reco-card {
+	height: 340px; /* FIXED HEIGHT */
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.reco-card:hover {
+	transform: scale(1.05);
+	box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.reco-card img {
+	height: 220px;
+	object-fit: fit;
+}
+
+.reco-card .card-body {
+	padding: 10px;
+}
+
+.reco-card .card-title {
+	font-size: 14px;
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.reco-card .card-genre {
+	font-size: 12px;
+	color: #6c757d;
+}
+</style>
+
+
+</style>
 
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-	rel="stylesheet" />
-
-<style>
-body {
-	background: #f8f9fc;
-}
-
-.card {
-	border: none;
-	border-radius: 15px;
-}
-
-.nav-link.active {
-	font-weight: bold;
-	border-bottom: 2px solid #6f42c1;
-}
-
-.chart-placeholder {
-	height: 180px;
-	background: #eef0f7;
-	border-radius: 10px;
-}
-
-.badge-status {
-	font-size: 0.8rem;
-}
-</style>
+	rel="stylesheet">
 </head>
 
-<body>
+<body class="container-fluid p-4">
+
+	<!-- ✅ KEEP YOUR EXISTING HEADER / NAV -->
+	<%@ include file="parentDashboardCommon.jsp"%>
 
 	<div class="container-fluid p-4">
 
-		<%@ include file="parentDashboardCommon.jsp"%>
-
-		<!-- TOP METRICS ROW -->
+		<!-- TOP METRICS -->
 		<div class="row g-4 mt-2">
 
 			<div class="col">
 				<div class="card p-3 text-center">
-					<h4 class="fw-bold">12</h4>
+					<h4 class="fw-bold">${dashboardMetrics.totalBooksRequested}</h4>
 					<p class="text-muted small">Total Books Requested</p>
 				</div>
 			</div>
 
 			<div class="col">
 				<div class="card p-3 text-center">
-					<h4 class="fw-bold">5</h4>
+					<h4 class="fw-bold">${dashboardMetrics.booksCurrentlyIssued}</h4>
 					<p class="text-muted small">Books Currently Issued</p>
 				</div>
 			</div>
 
 			<div class="col">
 				<div class="card p-3 text-center">
-					<h4 class="fw-bold">2</h4>
+					<h4 class="fw-bold text-danger">${dashboardMetrics.booksOverdue}</h4>
 					<p class="text-muted small">Books Overdue</p>
 				</div>
 			</div>
 
 			<div class="col">
 				<div class="card p-3 text-center">
-					<h4 class="fw-bold">3</h4>
-					<p class="text-muted small">Due Soon</p>
-				</div>
-			</div>
-
-			<div class="col">
-				<div class="card p-3 text-center">
-					<h4 class="fw-bold">18</h4>
+					<h4 class="fw-bold">${dashboardMetrics.booksReturned}</h4>
 					<p class="text-muted small">Books Returned</p>
 				</div>
 			</div>
 		</div>
-		<!-- END METRICS ROW -->
+
+		<!-- RECOMMENDED BOOKS -->
+		<!-- RECOMMENDED BOOKS -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<h5 class="fw-bold mb-3">Recommended Books</h5>
+			</div>
+
+			<c:choose>
+				<c:when test="${empty recommendedBooks}">
+					<div class="col-12">
+						<div class="alert alert-info text-center">No recommendations
+							available at the moment</div>
+					</div>
+				</c:when>
+
+				<c:otherwise>
+					<c:forEach items="${recommendedBooks}" var="book" begin="0" end="3">
+						<div class="col-lg-2 col-md-6 mb-3">
+
+							<a href="DashboardController?action=viewBooksDetails&bookId=${book.bookId}"
+								class="text-decoration-none text-dark">
+
+								<div class="card reco-card">
+
+									<img
+										src="${empty book.coverArt 
+									? 'https://via.placeholder.com/200x250'
+									: book.coverArt}"
+										class="card-img-top" alt="${book.title}">
+
+									<div class="card-body text-center">
+										<h6 class="card-title mb-1">${book.title}</h6>
+										<p class="card-genre mb-0">${book.genre}</p>
+									</div>
+
+								</div>
+							</a>
+
+						</div>
+					</c:forEach>
+				</c:otherwise>
+			</c:choose>
+		</div>
 
 
-		<!-- FIRST ROW -->
+
+
+		<!-- RECENT REQUESTS -->
 		<div class="row g-4 mt-4">
-
-			<!-- Recent Requests -->
 			<div class="col-lg-6">
-				<div class="card p-3">
+				<div class="card">
 					<div class="card-header bg-white">
 						<h5 class="mb-0">Recent Book Requests</h5>
 					</div>
 
-					<div class="card-body p-0">
-						<table class="table table-striped table-bordered mb-0">
-							<thead class="table-light">
-								<tr>
-									<th>#</th>
-									<th>Book Name</th>
-									<th>Requested Date</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>Atomic Habits</td>
-									<td>12 Jan 2025</td>
-									<td><span class="badge bg-warning text-dark">Pending</span></td>
-								</tr>
-
-								<tr>
-									<td>2</td>
-									<td>The Alchemist</td>
-									<td>10 Jan 2025</td>
-									<td><span class="badge bg-success">Approved</span></td>
-								</tr>
-
-								<tr>
-									<td>3</td>
-									<td>Rich Dad Poor Dad</td>
-									<td>09 Jan 2025</td>
-									<td><span class="badge bg-danger">Rejected</span></td>
-								</tr>
-							</tbody>
-
-						</table>
-					</div>
+					<table class="table table-bordered table-striped mb-0">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Book Name</th>
+								<th>Requested Date</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when test="${empty dashboardMetrics.recentBookRequests}">
+									<tr>
+										<td colspan="4" class="text-center">No recent requests</td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${dashboardMetrics.recentBookRequests}"
+										var="r" varStatus="i">
+										<tr>
+											<td>${i.count}</td>
+											<td>${r.bookName}</td>
+											<td>${r.requestDate}</td>
+											<td><span class="badge bg-secondary">${r.status}</span>
+											</td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
 				</div>
 			</div>
 
-			<!-- Books Currently Issued -->
+			<!-- BOOKS CURRENTLY ISSUED -->
 			<div class="col-lg-6">
-				<div class="card p-3">
+				<div class="card">
 					<div class="card-header bg-primary text-white">
 						<h5 class="mb-0">Books Currently Issued</h5>
 					</div>
 
-					<div class="card-body p-0">
-						<table class="table table-striped table-bordered mb-0">
-							<thead class="table-light">
-								<tr>
-									<th>#</th>
-									<th>Book</th>
-									<th>Issue Date</th>
-									<th>Due Date</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>The Great Gatsby</td>
-									<td>02 Jan 2025</td>
-									<td>10 Jan 2025</td>
-									<td><span class="badge bg-danger">Overdue</span></td>
-								</tr>
-
-								<tr>
-									<td>2</td>
-									<td>Harry Potter</td>
-									<td>05 Jan 2025</td>
-									<td>14 Jan 2025</td>
-									<td><span class="badge bg-warning text-dark">Due
-											Soon</span></td>
-								</tr>
-
-								<tr>
-									<td>3</td>
-									<td>Think Like a Monk</td>
-									<td>08 Jan 2025</td>
-									<td>15 Jan 2025</td>
-									<td><span class="badge bg-success">On Time</span></td>
-								</tr>
-							</tbody>
-
-						</table>
-					</div>
+					<table class="table table-bordered table-striped mb-0">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Book</th>
+								<th>Issue Date</th>
+								<th>Due Date</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when
+									test="${empty dashboardMetrics.booksCurrentlyIssuedList}">
+									<tr>
+										<td colspan="5" class="text-center">No books currently
+											issued</td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${dashboardMetrics.booksCurrentlyIssuedList}"
+										var="b" varStatus="i">
+										<tr>
+											<td>${i.count}</td>
+											<td>${b.bookName}</td>
+											<td>${b.issuedDate}</td>
+											<td>${b.dueDate}</td>
+											<td>${b.status}</td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
 				</div>
 			</div>
-
 		</div>
-		<!-- END FIRST ROW -->
 
+		<!-- OVERDUE + RETURNED -->
+		<div class="row g-4 mt-4">
 
-		<!-- SECOND ROW -->
-		<div class="row g-4 mt-2">
-
-			<!-- Overdue Books -->
 			<div class="col-lg-6">
-				<div class="card p-3">
+				<div class="card">
 					<div class="card-header bg-danger text-white">
 						<h5 class="mb-0">Overdue Books</h5>
 					</div>
 
-					<div class="card-body p-0">
-						<table class="table table-striped table-bordered mb-0">
-							<thead class="table-light">
-								<tr>
-									<th>#</th>
-									<th>Book Title</th>
-									<th>Issue Date</th>
-									<th>Due Date</th>
-									<th>Days Overdue</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>The Great Gatsby</td>
-									<td>02 Jan 2025</td>
-									<td>10 Jan 2025</td>
-									<td>3 Days</td>
-								</tr>
-
-								<tr>
-									<td>2</td>
-									<td>Wings of Fire</td>
-									<td>01 Jan 2025</td>
-									<td>08 Jan 2025</td>
-									<td>5 Days</td>
-								</tr>
-							</tbody>
-
-						</table>
-					</div>
+					<table class="table table-bordered table-striped mb-0">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Book</th>
+								<th>Issue Date</th>
+								<th>Due Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when test="${empty dashboardMetrics.overdueBooks}">
+									<tr>
+										<td colspan="5" class="text-center">No overdue books 🎉</td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${dashboardMetrics.overdueBooks}" var="o"
+										varStatus="i">
+										<tr>
+											<td>${i.count}</td>
+											<td>${o.bookName}</td>
+											<td>${o.issuedDate}</td>
+											<td>${o.dueDate}</td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
 				</div>
 			</div>
 
-			<!-- Returned Books History -->
 			<div class="col-lg-6">
-				<div class="card p-3">
+				<div class="card">
 					<div class="card-header bg-success text-white">
 						<h5 class="mb-0">Returned Books History</h5>
 					</div>
 
-					<div class="card-body p-0">
-						<table class="table table-striped table-bordered mb-0">
-							<thead class="table-light">
-								<tr>
-									<th>#</th>
-									<th>Book Title</th>
-									<th>Issued On</th>
-									<th>Returned On</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr>
-									<td>1</td>
-									<td>Do Epic Shit</td>
-									<td>10 Dec 2024</td>
-									<td>17 Dec 2024</td>
-								</tr>
-
-								<tr>
-									<td>2</td>
-									<td>The Secret</td>
-									<td>15 Dec 2024</td>
-									<td>22 Dec 2024</td>
-								</tr>
-
-							</tbody>
-
-						</table>
-					</div>
+					<table class="table table-bordered table-striped mb-0">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Book</th>
+								<th>Issued On</th>
+								<th>Returned On</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when test="${empty dashboardMetrics.returnedBooksHistory}">
+									<tr>
+										<td colspan="4" class="text-center">No returned books</td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${dashboardMetrics.returnedBooksHistory}"
+										var="r" varStatus="i">
+										<tr>
+											<td>${i.count}</td>
+											<td>${r.bookName}</td>
+											<td>${r.issuedDate}</td>
+											<td>${r.returnedDate}</td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
 				</div>
 			</div>
 
 		</div>
-		<!-- END SECOND ROW -->
 
-
-		<!-- THIRD ROW -->
-		<div class="row g-4 mt-2">
-
-			<!-- Upcoming Returns -->
+		<!-- UPCOMING RETURNS -->
+		<div class="row g-4 mt-4">
 			<div class="col-lg-12">
-				<div class="card p-3 shadow-sm">
-					<div class="card-header bg-warning text-dark">
+				<div class="card">
+					<div class="card-header bg-warning">
 						<h5 class="mb-0">Upcoming Returns (Due Soon)</h5>
 					</div>
 
-					<div class="card-body p-0">
-						<div class="table-responsive">
-							<table class="table table-striped table-bordered mb-0">
-								<thead class="table-light">
+					<table class="table table-bordered table-striped mb-0">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Book</th>
+								<th>Due Date</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<c:when test="${empty dashboardMetrics.upcomingReturns}">
 									<tr>
-										<th>#</th>
-										<th>Book</th>
-										<th>Due Date</th>
-										<th>Status</th>
+										<td colspan="4" class="text-center">No upcoming returns</td>
 									</tr>
-								</thead>
-
-								<tbody>
-
-									<tr>
-										<td>1</td>
-										<td>Harry Potter</td>
-										<td>14 Jan 2025</td>
-										<td><span class="badge bg-warning text-dark">Due
-												Tomorrow</span></td>
-									</tr>
-
-									<tr>
-										<td>2</td>
-										<td>Think Like a Monk</td>
-										<td>15 Jan 2025</td>
-										<td><span class="badge bg-info text-dark">Due Soon</span></td>
-									</tr>
-
-								</tbody>
-							</table>
-						</div>
-					</div>
-
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${dashboardMetrics.upcomingReturns}" var="u"
+										varStatus="i">
+										<tr>
+											<td>${i.count}</td>
+											<td>${u.bookName}</td>
+											<td>${u.dueDate}</td>
+											<td>${u.status}</td>
+										</tr>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
 				</div>
 			</div>
-
 		</div>
-		<!-- END THIRD ROW -->
-
 
 	</div>
 

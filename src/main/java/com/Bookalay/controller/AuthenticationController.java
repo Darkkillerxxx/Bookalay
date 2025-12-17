@@ -1,6 +1,7 @@
 package com.Bookalay.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,8 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.Bookalay.pojo.ParentDashboardData;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.Book;
+import com.Bookalay.service.BookService;
+import com.Bookalay.service.DashboardService;
 import com.Bookalay.service.UserService;
+import com.Bookalay.serviceImpl.BookServiceImpl;
+import com.Bookalay.serviceImpl.DashboardServiceImpl;
 import com.Bookalay.serviceImpl.UserServiceImpl;
 
 /**
@@ -56,8 +63,7 @@ public class AuthenticationController extends HttpServlet {
 		                    RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
 		                    dispatcher.forward(request, response);
 		                } else {
-		                    RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
-		                    dispatcher.forward(request, response);
+		                	setParentMetrics(user.getUserId(),request,response);
 		                }
 		            } else {
 		                request.setAttribute("errorMessage", "Invalid Username Or Password");
@@ -77,18 +83,19 @@ public class AuthenticationController extends HttpServlet {
 		            response.getWriter().println("<script>");
 		            response.getWriter().println("localStorage.removeItem('user');"); // clear user from localStorage
 		            response.getWriter().println("alert('You have been logged out');");
-		            response.getWriter().println("window.location.href='jsp/login.jsp';");
+		            response.getWriter().println("window.location.href='/Bookalay';");
 		            response.getWriter().println("</script>");
 		        	break;
 		        	
 		        case "home":
 		    		com.Bookalay.pojo.User loggedInUser = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
+		    	
+		    		
 		    		if(loggedInUser.getUserType() == "admin") {
 		    			 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
 	                     dispatcher.forward(request, response);
 		    		}else {
-		    			 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
-		                 dispatcher.forward(request, response);
+		    			 setParentMetrics(loggedInUser.getUserId(),request,response);
 		    		}
 		        	break;
 		        	
@@ -102,6 +109,32 @@ public class AuthenticationController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
+	}
+	
+	private void setParentMetrics(Integer userId,HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+		
+		DashboardService dashboardService = new DashboardServiceImpl();
+		BookService bookService = new BookServiceImpl();
+		 
+		 ParentDashboardData pdd = new ParentDashboardData();
+		 pdd.setTotalBooksRequested(dashboardService.getTotalRequests(userId));
+		 pdd.setBooksCurrentlyIssued(dashboardService.getBooksCurrentlyIssued(userId));
+		 pdd.setBooksOverdue(dashboardService.getOverdueBooksCount(userId));
+		 pdd.setBooksReturned(dashboardService.getBooksReturned(userId));
+		 pdd.setRecentBookRequests(dashboardService.getRecentRequests(userId, 5));
+		 pdd.setBooksCurrentlyIssuedList(dashboardService.getIssuedBooks(userId));
+		 pdd.setOverdueBooks(dashboardService.getOverdueBooks(userId));
+		 pdd.setReturnedBooksHistory(dashboardService.getReturnedBooks(userId));
+		 pdd.setUpcomingReturns(dashboardService.getUpcomingDue(userId, 7));
+		 
+		 List<Book> recommendedBooksList = bookService.recommendBooksForParent(userId);
+		 request.setAttribute("recommendedBooks", recommendedBooksList);
+		 
+		 System.out.print(recommendedBooksList);
+		 
+		 request.setAttribute("dashboardMetrics", pdd);
+		 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
+         dispatcher.forward(request, response);
 	}
 
 }
