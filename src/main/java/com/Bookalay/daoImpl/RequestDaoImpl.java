@@ -10,7 +10,9 @@ import java.util.List;
 import com.Bookalay.dao.RequestDao;
 import com.Bookalay.pojo.Request;
 import com.Bookalay.pojo.Transaction;
+import com.Bookalay.util.DateUtil;
 import com.Bookalay.util.DbUtil;
+import com.Bookalay.util.FunctUtil;
 
 public class RequestDaoImpl implements RequestDao {
 	
@@ -104,58 +106,229 @@ public class RequestDaoImpl implements RequestDao {
 
 	    return list;
 	}
-
-
 	
-    @Override
-    public List<Request> fetchActiveRequests() {
+	@Override
+	public Request fetchRequestDetails(int id) {
+        	Request req = new Request();
+	        Connection conn = null;
+	        PreparedStatement ps = null;
+	        ResultSet rs = null;
 
-        List<Request> list = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+	        try {
 
-        try {
+	            conn = DbUtil.getConnection();
 
-            conn = DbUtil.getConnection();
+	            String query = 
+	                "SELECT r.*, " +
+	                "p.parent_id, p.user_id AS p_user_id, p.parent_name, p.email AS p_email, p.phone, p.registration_date AS p_reg_date, " +
+	                "u.user_id, u.username, u.user_type, u.last_login, u.is_active, u.created_date, u.isApproved, " +
+	                "c.child_id, c.child_name, c.age, c.gender, c.interests, c.reading_level, c.genres, c.reading_frequency, c.notes AS child_notes, " +
+	                "b.book_id, b.title, b.author, b.interest, b.genre, b.reading_difficulty, b.series_name, b.page_count, b.summary, b.cover_art, " +
+	                "b.is_available, b.total_copies, b.available_copies, b.date_added " +
+	                "FROM requests r " +
+	                "JOIN parent p ON r.parent_id = p.parent_id " +
+	                "JOIN user u ON p.user_id = u.user_id " +
+	                "JOIN child c ON r.child_id = c.child_id " +
+	                "JOIN book b ON r.book_id = b.book_id " +
+	                "WHERE r.request_id = ? " +
+	                "ORDER BY r.request_date DESC";
 
-            String query =
-                    "SELECT p.parent_name, b.title AS book_name, r.request_date " +
-                    "FROM requests r " +
-                    "JOIN parent p ON r.parent_id = p.parent_id " +
-                    "JOIN book b ON r.book_id = b.book_id " +
-                    "WHERE r.issued_date IS NOT NULL " +
-                    "AND r.returned_date IS NULL";
+	            ps = conn.prepareStatement(query);
+	            ps.setInt(1, id);   // FIXED
+	            rs = ps.executeQuery();
 
-            ps = conn.prepareStatement(query);
-            rs = ps.executeQuery();
+	            while (rs.next()) {
 
-            while (rs.next()) {
 
-                Request req = new Request();
+	                // Request fields
+	                req.setRequestId(rs.getInt("request_id"));
+	                req.setParentId(rs.getInt("parent_id"));
+	                req.setChildId(rs.getInt("child_id"));
+	                req.setBookId(rs.getInt("book_id"));
+	                req.setStatus(rs.getString("status"));
+	                
+	                req.setRequestDate(DateUtil.formatWithSuffix(rs.getString("request_date")));
+	                req.setApprovalDate(DateUtil.formatWithSuffix(rs.getString("approval_date")));
+	                req.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+	                req.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
+	                req.setReturnedDate(DateUtil.formatWithSuffix(rs.getString("returned_date")));
+	                
+	                req.setNotes(rs.getString("notes"));
+	                req.setApprovedBy(rs.getInt("approved_by"));
 
-                req.setParentName(rs.getString("parent_name"));
-                req.setBookName(rs.getString("book_name"));
-                req.setRequestDate(rs.getString("request_date"));
+	                // Parent fields
+	                req.setParentName(rs.getString("parent_name"));
+	                req.setParentEmail(rs.getString("p_email"));
+	                req.setParentPhone(rs.getString("phone"));
 
-                list.add(req);
-            }
+	                // Child fields
+	                req.setChildName(rs.getString("child_name"));
+	                req.setChildAge(rs.getInt("age"));
+	                req.setChildGender(rs.getString("gender"));
+	                req.setChildInterests(rs.getString("interests"));
+	                req.setChildReadingLevel(rs.getString("reading_level"));
+	                req.setChildGenres(rs.getString("genres"));
+	                req.setChildReadingFrequency(rs.getString("reading_frequency"));
+	                req.setChildNotes(rs.getString("child_notes"));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
-            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
-        }
+	                // Book fields
+	                req.setBookName(rs.getString("title"));
+	                req.setBookAuthor(rs.getString("author"));
+	                req.setBookInterest(rs.getString("interest"));
+	                req.setBookGenre(rs.getString("genre"));
+	                req.setBookDifficulty(rs.getString("reading_difficulty"));
+	                req.setSeriesName(rs.getString("series_name"));
+	                req.setPageCount(rs.getInt("page_count"));
+	                req.setSummary(rs.getString("summary"));
+	                req.setCoverArt(rs.getString("cover_art"));
+	                req.setIsAvailable(rs.getInt("is_available"));
+	                req.setTotalCopies(rs.getInt("total_copies"));
+	                req.setAvailableCopies(rs.getInt("available_copies"));
+	                req.setDateAdded(rs.getString("date_added"));
 
-        return list;
-    }
-    
+	                // User fields
+	                req.setUsername(rs.getString("username"));
+	                req.setUserType(rs.getString("user_type"));
+	                req.setLastLogin(rs.getString("last_login"));
+	                req.setUserActive(rs.getInt("is_active"));
+	                req.setUserCreatedDate(rs.getString("created_date"));
+	                req.setUserApproved(rs.getInt("isApproved"));
+	            }
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+	            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+	            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+	        }
+	        return req;
+	}
+	
+	@Override
+	public List<Request> fetchRequestsForBookId(String bookId) {
+
+	    List<Request> list = new ArrayList<>();
+
+	    String query =
+	        "SELECT p.parent_name, " +
+	        "       b.title AS book_name, " +
+	        "       r.request_date, " +
+	        "       r.approval_date,r.issued_date,r.due_date,r.returned_date, " +
+	        "       r.status " +
+	        "FROM requests r " +
+	        "JOIN parent p ON r.parent_id = p.parent_id " +
+	        "JOIN book b ON r.book_id = b.book_id " +
+	        "WHERE r.book_id = ? AND (r.status = 'issued' OR r.status = 'approved')" +
+	        "ORDER BY r.request_date DESC";
+
+	    try (
+	        Connection conn = DbUtil.getConnection();
+	        PreparedStatement ps = conn.prepareStatement(query)
+	    ) {
+	    	
+	    	if(bookId != null) {
+		        ps.setInt(1, Integer.parseInt(bookId));
+	    	}
+
+	        try (ResultSet rs = ps.executeQuery()) {
+
+	            while (rs.next()) {
+	                Request req = new Request();
+
+	                req.setParentName(rs.getString("parent_name"));
+	                req.setBookName(rs.getString("book_name"));
+	                req.setRequestDate(DateUtil.formatWithSuffix(rs.getString("request_date")));
+	                req.setApprovalDate(DateUtil.formatWithSuffix(rs.getString("approval_date")));
+	                req.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+	                req.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
+	                req.setReturnedDate(DateUtil.formatWithSuffix(rs.getString("returned_date")));
+	                req.setStatus(rs.getString("status"));
+
+	                list.add(req);
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
+	
+	@Override
+	public List<Request> fetchActiveRequests(boolean isAdmin, String searchText) {
+
+	    List<Request> list = new ArrayList<>();
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
+
+	    try {
+	        conn = DbUtil.getConnection();
+
+	        String query;
+
+	        if (isAdmin) {
+	            query =
+	                "SELECT r.request_id, p.parent_name, r.status, " +
+	                "       b.book_id, b.title AS book_name, r.request_date " +
+	                "FROM requests r " +
+	                "JOIN parent p ON r.parent_id = p.parent_id " +
+	                "JOIN book b ON r.book_id = b.book_id " +
+	                "WHERE (p.parent_name LIKE ? OR b.title LIKE ?) " +
+	                "ORDER BY r.request_date DESC";
+
+	            ps = conn.prepareStatement(query);
+	            if(searchText == null) {
+	            	searchText="";
+	            }
+	            ps.setString(1, "%" + searchText + "%");
+	            ps.setString(2, "%" + searchText + "%");
+
+	        } else {
+	            query =
+	                "SELECT r.request_id, p.parent_name, r.status, " +
+	                "       b.book_id, b.title AS book_name, r.request_date " +
+	                "FROM requests r " +
+	                "JOIN parent p ON r.parent_id = p.parent_id " +
+	                "JOIN book b ON r.book_id = b.book_id " +
+	                "WHERE r.issued_date IS NOT NULL " +
+	                "AND r.returned_date IS NULL " +
+	                "ORDER BY r.request_date DESC";
+
+	            ps = conn.prepareStatement(query);
+	        }
+
+	        rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            Request req = new Request();
+	            req.setRequestId(rs.getInt("request_id"));
+	            req.setBookId(rs.getInt("book_id"));
+	            req.setParentName(rs.getString("parent_name"));
+	            req.setBookName(rs.getString("book_name"));
+                req.setRequestDate(DateUtil.formatWithSuffix(rs.getString("request_date")));
+	            req.setStatus(rs.getString("status"));
+	            list.add(req);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+	        try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+	    }
+
+	    return list;
+	}
+
     @Override
     public List<Request> fetchRequestsDetailsById(int id) {
 
         List<Request> list = new ArrayList<>();
+        
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -163,6 +336,14 @@ public class RequestDaoImpl implements RequestDao {
         try {
 
             conn = DbUtil.getConnection();
+
+            Integer parentId = FunctUtil.getParentIdByUserId(id);
+
+            if (parentId == null) {
+                return list;
+            }
+            
+
 
             String query = 
                 "SELECT r.*, " +
@@ -180,7 +361,7 @@ public class RequestDaoImpl implements RequestDao {
                 "ORDER BY r.request_date DESC";
 
             ps = conn.prepareStatement(query);
-            ps.setInt(1, id);   // FIXED
+            ps.setInt(1, parentId); 
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -193,11 +374,11 @@ public class RequestDaoImpl implements RequestDao {
                 req.setChildId(rs.getInt("child_id"));
                 req.setBookId(rs.getInt("book_id"));
                 req.setStatus(rs.getString("status"));
-                req.setRequestDate(rs.getString("request_date"));
-                req.setApprovalDate(rs.getString("approval_date"));
-                req.setIssuedDate(rs.getString("issued_date"));
-                req.setDueDate(rs.getString("due_date"));
-                req.setReturnedDate(rs.getString("returned_date"));
+                req.setRequestDate(DateUtil.formatWithSuffix(rs.getString("request_date")));
+                req.setApprovalDate(DateUtil.formatWithSuffix(rs.getString("approval_date")));
+                req.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                req.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
+                req.setReturnedDate(DateUtil.formatWithSuffix(rs.getString("returned_date")));
                 req.setNotes(rs.getString("notes"));
                 req.setApprovedBy(rs.getInt("approved_by"));
 
@@ -320,7 +501,7 @@ public class RequestDaoImpl implements RequestDao {
 
             if (rows > 0) {
                 t.setSuccess(true);
-                t.setMessage("Request raised successfully!");
+                t.setMessage("Yor Request is raised Succesfully !!! Please wait for the Admin to Approve your Request");
             } else {
                 t.setSuccess(false);
                 t.setMessage("Could not raise request.");
@@ -339,9 +520,303 @@ public class RequestDaoImpl implements RequestDao {
         return t;
     }
 
+    @Override
+    public Transaction rejectRequest(int requestId,String notes) {
+
+        Transaction t = new Transaction();
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = DbUtil.getConnection();
+
+            /* -----------------------------------
+               Reject the request
+            ------------------------------------- */
+            String sql =
+                "UPDATE requests SET status = 'rejected',notes = ? WHERE request_id = ?";
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, notes);
+            ps.setInt(2, requestId);
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                t.setSuccess(true);
+                t.setMessage("Request rejected successfully.");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("Request not found.");
+            }
+
+        } catch (Exception e) {
+            t.setSuccess(false);
+            t.setMessage("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return t;
+    }
+    
+    @Override
+    public Transaction issueRequest(int requestId) {
+
+        Transaction t = new Transaction();
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = DbUtil.getConnection();
+
+            /* -----------------------------------
+               Issue the book
+            ------------------------------------- */
+            String sql = """
+                UPDATE requests
+                SET status = 'issued',
+                    issued_date = CURRENT_DATE,
+                    due_date = DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY)
+                WHERE request_id = ?
+            """;
+
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, requestId);
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                t.setSuccess(true);
+                t.setMessage("Book issued successfully.");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("Request not found.");
+            }
+
+        } catch (Exception e) {
+            t.setSuccess(false);
+            t.setMessage("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return t;
+    }
+    
+    @Override
+    public Transaction approveRequest(int requestId) {
+
+        Transaction t = new Transaction();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DbUtil.getConnection();
+
+            /* -----------------------------------
+               1. Get book_id, request_date & available copies
+            ------------------------------------- */
+            String baseSql = """
+                SELECT r.book_id, r.request_date, b.available_copies
+                FROM requests r
+                JOIN book b ON r.book_id = b.book_id
+                WHERE r.request_id = ?
+            """;
+
+            ps = conn.prepareStatement(baseSql);
+            ps.setInt(1, requestId);
+            rs = ps.executeQuery();
+
+            int bookId = 0;
+            Date requestDate = null;
+            int availableCopies = 0;
+
+            if (rs.next()) {
+                bookId = rs.getInt("book_id");
+                requestDate = rs.getDate("request_date");
+                availableCopies = rs.getInt("available_copies");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("Request not found.");
+                return t;
+            }
+
+            rs.close();
+            ps.close();
+
+            /* -----------------------------------
+               2. If copies available → approve
+            ------------------------------------- */
+            if (availableCopies > 0) {
+            	availableCopies = availableCopies - 1;
+                String approveSql =
+                    "UPDATE requests SET status = 'approved',available_copies= ? WHERE request_id = ?";
+
+                ps = conn.prepareStatement(approveSql);
+                ps.setInt(1, availableCopies);
+                ps.setInt(2, requestId);
+                ps.executeUpdate();
+
+                t.setSuccess(true);
+                t.setMessage("Request approved successfully.");
+                return t;
+            }
+
+            /* -----------------------------------
+               3. Check due dates of issued/approved requests
+            ------------------------------------- */
+            String dueSql = """
+                SELECT MAX(due_date) AS last_due
+                FROM requests
+                WHERE book_id = ?
+                  AND status IN ('issued', 'approved')
+            """;
+
+            ps = conn.prepareStatement(dueSql);
+            ps.setInt(1, bookId);
+            rs = ps.executeQuery();
+
+            Date lastDueDate = null;
+            if (rs.next()) {
+                lastDueDate = rs.getDate("last_due");
+            }
+
+            rs.close();
+            ps.close();
+
+            /* -----------------------------------
+               4. Approve only if request_date > all due_dates
+            ------------------------------------- */
+            if (lastDueDate != null && requestDate.after(lastDueDate)) {
+
+                String approveSql =
+                    "UPDATE requests SET status = 'approved' WHERE request_id = ?";
+
+                ps = conn.prepareStatement(approveSql);
+                ps.setInt(1, requestId);
+                ps.executeUpdate();
+
+                t.setSuccess(true);
+                t.setMessage("Request approved (future availability confirmed).");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("No copies available to approve this request.");
+            }
+
+        } catch (Exception e) {
+            t.setSuccess(false);
+            t.setMessage("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return t;
+    }
+    
+    @Override
+    public Transaction returnRequest(int requestId) {
+
+        Transaction t = new Transaction();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DbUtil.getConnection();
+            conn.setAutoCommit(false); // transaction start
+
+            int bookId = 0;
+
+            /* -----------------------------------
+               1. Get Book ID from Request
+            ------------------------------------- */
+            String getBookSql = """
+                SELECT book_id
+                FROM requests
+                WHERE request_id = ? AND status = 'issued'
+            """;
+
+            ps = conn.prepareStatement(getBookSql);
+            ps.setInt(1, requestId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                bookId = rs.getInt("book_id");
+            } else {
+                t.setSuccess(false);
+                t.setMessage("Invalid request or book not issued.");
+                return t;
+            }
+
+            rs.close();
+            ps.close();
+
+            /* -----------------------------------
+               2. Update Request → returned
+            ------------------------------------- */
+            String updateRequestSql = """
+                UPDATE requests
+                SET status = 'returned',
+                    returned_date = CURRENT_TIMESTAMP
+                WHERE request_id = ?
+            """;
+
+            ps = conn.prepareStatement(updateRequestSql);
+            ps.setInt(1, requestId);
+            ps.executeUpdate();
+            ps.close();
+
+            /* -----------------------------------
+               3. Increase Available Copies
+            ------------------------------------- */
+            String updateBookSql = """
+                UPDATE book
+                SET available_copies = available_copies + 1
+                WHERE book_id = ?
+            """;
+
+            ps = conn.prepareStatement(updateBookSql);
+            ps.setInt(1, bookId);
+            ps.executeUpdate();
+
+            conn.commit(); // ✅ success
+
+            t.setSuccess(true);
+            t.setMessage("Book returned successfully.");
+
+        } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
+            t.setSuccess(false);
+            t.setMessage("Error while returning book: " + e.getMessage());
+            e.printStackTrace();
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return t;
+    }
+
+
 	@Override
 	public List<Request> raiseRequestById(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+
+
+
 }

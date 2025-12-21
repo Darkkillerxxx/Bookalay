@@ -31,4 +31,5 @@ public interface UserDao {
 	public List<ParentUser> fetchAllUsers(String search);
 	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive);
 	public UserProfile fetchUserProfile(String parentId);
+	public Transaction rejectUserDetails(String parentId);
 }

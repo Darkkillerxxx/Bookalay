@@ -11,118 +11,110 @@ import java.util.List;
 import com.Bookalay.dao.BookDao;
 import com.Bookalay.pojo.Book;
 import com.Bookalay.pojo.Transaction;
+import com.Bookalay.util.DateUtil;
 import com.Bookalay.util.DbUtil;
 
 public class BookDaoImpl implements BookDao {
 
 	@Override
-	public List<Book> fetchAvailableBooks(String search, String interests, String genres,boolean isAdmin) {
+	public List<Book> fetchAvailableBooks(String search, String interests, String genres, boolean isAdmin) {
 
-		List<Book> books = new ArrayList<>();
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+	    List<Book> books = new ArrayList<>();
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
 
-		try {
+	    try {
+	        conn = DbUtil.getConnection();
 
-			conn = DbUtil.getConnection();
-			StringBuilder query;
-			if(isAdmin) {
-				query = new StringBuilder("SELECT * FROM BOOK");
-			}else {
-				query = new StringBuilder("SELECT * FROM BOOK WHERE is_available = true");
-			}
+	        StringBuilder query = new StringBuilder("SELECT * FROM BOOK WHERE 1=1");
 
-			List<Object> params = new ArrayList<>();
+	        if (!isAdmin) {
+	            query.append(" AND is_available = true");
+	        }
 
-			// ✔ SEARCH (optional)
-			if (search != null && !search.trim().isEmpty()) {
-				query.append(" AND (title LIKE ? OR author LIKE ?)");
-				params.add("%" + search + "%");
-				params.add("%" + search + "%");
-			}
+	        List<Object> params = new ArrayList<>();
 
-			// ✔ GENRE FILTER (comma separated)
-			if (genres != null && !genres.trim().isEmpty()) {
-				String[] genreArray = genres.split(",");
-				query.append(" AND genre IN (");
-				query.append("?, ".repeat(genreArray.length));
-				query.setLength(query.length() - 2); // remove last comma
-				query.append(")");
+	        // 🔍 SEARCH
+	        if (search != null && !search.trim().isEmpty()) {
+	            query.append(" AND (title LIKE ? OR author LIKE ?)");
+	            params.add("%" + search + "%");
+	            params.add("%" + search + "%");
+	        }
 
-				for (String g : genreArray) {
-					params.add(g.trim());
-				}
-			}
+	        if (genres != null && !genres.trim().isEmpty()) {
+	            String[] genreArray = genres.split(",");
 
-			// ✔ INTEREST FILTER (comma separated)
-			if (interests != null && !interests.trim().isEmpty()) {
-				String[] interestArray = interests.split(",");
-				query.append(" AND interest IN (");
-				query.append("?, ".repeat(interestArray.length));
-				query.setLength(query.length() - 2);
-				query.append(")");
+	            query.append(" AND (");
 
-				for (String in : interestArray) {
-					params.add(in.trim());
-				}
-			}
+	            for (int i = 0; i < genreArray.length; i++) {
+	                query.append(" genre LIKE ? ");
+	                if (i < genreArray.length - 1) {
+	                    query.append(" OR ");
+	                }
+	                params.add("%" + genreArray[i].trim() + "%");
+	            }
 
-			ps = conn.prepareStatement(query.toString());
+	            query.append(")");
+	        }
 
-			// Set parameters safely
-			for (int i = 0; i < params.size(); i++) {
-				ps.setObject(i + 1, params.get(i));
-			}
 
-			rs = ps.executeQuery();
+	        if (interests != null && !interests.trim().isEmpty()) {
+	            String[] interestArray = interests.split(",");
 
-			while (rs.next()) {
-				Book book = new Book();
-				book.setBookId(rs.getInt("book_id"));
-				book.setTitle(rs.getString("title"));
-				book.setAuthor(rs.getString("author"));
-				book.setInterest(rs.getString("interest"));
-				book.setGenre(rs.getString("genre"));
-				book.setReadingDifficulty(rs.getString("reading_difficulty"));
-				book.setSeriesName(rs.getString("series_name"));
-				book.setPageCount(rs.getInt("page_count"));
-				book.setSummary(rs.getString("summary"));
-				book.setCoverArt(rs.getString("cover_art"));
-				book.setAvailable(rs.getBoolean("is_available"));
-				book.setTotalCopies(rs.getInt("total_copies"));
-				book.setAvailableCopies(rs.getInt("available_copies"));
+	            query.append(" AND (");
 
-				Timestamp ts = rs.getTimestamp("date_added");
-				if (ts != null) {
-					book.setDateAdded(ts.toLocalDateTime());
-				}
+	            for (int i = 0; i < interestArray.length; i++) {
+	                query.append(" interest LIKE ? ");
+	                if (i < interestArray.length - 1) {
+	                    query.append(" OR ");
+	                }
+	                params.add("%" + interestArray[i].trim() + "%");
+	            }
 
-				books.add(book);
-			}
+	            query.append(")");
+	        }
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-			} catch (Exception ignored) {
-			}
-			try {
-				if (ps != null)
-					ps.close();
-			} catch (Exception ignored) {
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (Exception ignored) {
-			}
-		}
 
-		return books;
+	        System.out.println("Final Query: " + query);
+
+	        ps = conn.prepareStatement(query.toString());
+
+	        for (int i = 0; i < params.size(); i++) {
+	            ps.setObject(i + 1, params.get(i));
+	        }
+
+	        rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            Book book = new Book();
+	            book.setBookId(rs.getInt("book_id"));
+	            book.setTitle(rs.getString("title"));
+	            book.setAuthor(rs.getString("author"));
+	            book.setInterest(rs.getString("interest"));
+	            book.setGenre(rs.getString("genre"));
+	            book.setReadingDifficulty(rs.getString("reading_difficulty"));
+	            book.setSeriesName(rs.getString("series_name"));
+	            book.setPageCount(rs.getInt("page_count"));
+	            book.setSummary(rs.getString("summary"));
+	            book.setCoverArt(rs.getString("cover_art"));
+	            book.setAvailable(rs.getBoolean("is_available"));
+	            book.setTotalCopies(rs.getInt("total_copies"));
+	            book.setAvailableCopies(rs.getInt("available_copies"));
+	            books.add(book);
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+	        try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+	    }
+
+	    return books;
 	}
+
 
 	@Override
 	public Book getBookById(int bookId) {
@@ -149,11 +141,7 @@ public class BookDaoImpl implements BookDao {
 					book.setAvailable(rs.getBoolean("is_available"));
 					book.setTotalCopies(rs.getInt("total_copies"));
 					book.setAvailableCopies(rs.getInt("available_copies"));
-
-					Timestamp ts = rs.getTimestamp("date_added");
-					if (ts != null) {
-						book.setDateAdded(ts.toLocalDateTime());
-					}
+					book.setDateAdded(DateUtil.formatWithSuffix(rs.getTimestamp("date_added").toLocalDateTime()));
 				}
 			}
 
@@ -269,51 +257,145 @@ public class BookDaoImpl implements BookDao {
 	}
 	
 	@Override
-	public List<Book> recommendBooksForParent(int parentId) {
+	public List<Book> recommendBooksForParent(int userId) {
 
 	    List<Book> books = new ArrayList<>();
 
-	    String sql =
-	        "SELECT DISTINCT b.* " +
-	        "FROM book b " +
-	        "JOIN child c ON c.parent_id = ? " +
-	        "WHERE b.is_available = 1 " +
-	        "  AND b.available_copies > 0 " +
-	        "  AND ( " +
-	        "        CONCAT(',', LOWER(c.interests), ',') LIKE CONCAT('%,', LOWER(b.interest), ',%') " +
-	        "     OR CONCAT(',', LOWER(c.genres), ',') LIKE CONCAT('%,', LOWER(b.genre), ',%') " +
-	        "      ) " +
-	        "  AND b.book_id NOT IN ( " +
-	        "        SELECT r.book_id " +
-	        "        FROM requests r " +
-	        "        WHERE r.parent_id = ? " +
-	        "          AND r.status IN ('issued', 'returned') " +
-	        "      )";
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
 
-	    try (Connection conn = DbUtil.getConnection();
-	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	    try {
+	        conn = DbUtil.getConnection();
 
-	        ps.setInt(1, parentId);
-	        ps.setInt(2, parentId);
+	        // --------------------------------------------------
+	        // 1️⃣ GET PARENT ID USING USER ID
+	        // --------------------------------------------------
+	        int parentId = 0;
 
-	        try (ResultSet rs = ps.executeQuery()) {
-	            while (rs.next()) {
-	                Book book = new Book();
-	                book.setBookId(rs.getInt("book_id"));
-	                book.setTitle(rs.getString("title"));
-	                book.setAuthor(rs.getString("author"));
-	                book.setInterest(rs.getString("interest"));
-	                book.setGenre(rs.getString("genre"));
-	                book.setCoverArt(rs.getString("cover_art"));
-	                book.setAvailableCopies(rs.getInt("available_copies"));
-	                books.add(book);
+	        String parentSql = "SELECT parent_id FROM parent WHERE user_id = ?";
+	        try (PreparedStatement pps = conn.prepareStatement(parentSql)) {
+	            pps.setInt(1, userId);
+	            try (ResultSet prs = pps.executeQuery()) {
+	                if (prs.next()) {
+	                    parentId = prs.getInt("parent_id");
+	                }
 	            }
+	        }
+
+	        // ❌ If no parent found → return empty
+	        if (parentId == 0) {
+	            return books;
+	        }
+
+	        // --------------------------------------------------
+	        // 2️⃣ GET CHILD INTERESTS & GENRES
+	        // --------------------------------------------------
+	        String childInterests = "";
+	        String childGenres = "";
+
+	        String childSql =
+	                "SELECT interests, genres " +
+	                "FROM child " +
+	                "WHERE parent_id = ?";
+
+	        try (PreparedStatement cps = conn.prepareStatement(childSql)) {
+	            cps.setInt(1, parentId);
+	            try (ResultSet crs = cps.executeQuery()) {
+	                if (crs.next()) {
+	                    childInterests = crs.getString("interests");
+	                    childGenres = crs.getString("genres");
+	                }
+	            }
+	        }
+
+	        // ❌ No preferences
+	        if ((childInterests == null || childInterests.isBlank()) &&
+	            (childGenres == null || childGenres.isBlank())) {
+	            return books;
+	        }
+
+	        // --------------------------------------------------
+	        // 3️⃣ BUILD RECOMMENDATION QUERY
+	        // --------------------------------------------------
+	        StringBuilder query = new StringBuilder(
+	                "SELECT DISTINCT b.* " +
+	                "FROM book b " +
+	                "WHERE b.is_available = 1 " +
+	                "AND b.available_copies > 0 "
+	        );
+
+	        List<Object> params = new ArrayList<>();
+	        query.append(" AND (");
+
+	        boolean first = true;
+
+	        // 🎯 INTEREST MATCH
+	        if (childInterests != null && !childInterests.isBlank()) {
+	            for (String interest : childInterests.split(",")) {
+	                if (!first) query.append(" OR ");
+	                query.append("LOWER(b.interest) LIKE ?");
+	                params.add("%" + interest.trim().toLowerCase() + "%");
+	                first = false;
+	            }
+	        }
+
+	        // 🎭 GENRE MATCH
+	        if (childGenres != null && !childGenres.isBlank()) {
+	            for (String genre : childGenres.split(",")) {
+	                if (!first) query.append(" OR ");
+	                query.append("LOWER(b.genre) LIKE ?");
+	                params.add("%" + genre.trim().toLowerCase() + "%");
+	                first = false;
+	            }
+	        }
+
+	        query.append(")");
+
+	        // 🚫 EXCLUDE ALREADY ISSUED / RETURNED
+	        query.append(
+	                " AND b.book_id NOT IN ( " +
+	                "   SELECT r.book_id " +
+	                "   FROM requests r " +
+	                "   WHERE r.parent_id = ? " +
+	                "   AND r.status IN ('issued','returned')" +
+	                " ) LIMIT 6"
+	        );
+
+	        params.add(parentId);
+
+	        // --------------------------------------------------
+	        // 4️⃣ EXECUTE
+	        // --------------------------------------------------
+	        ps = conn.prepareStatement(query.toString());
+
+	        for (int i = 0; i < params.size(); i++) {
+	            ps.setObject(i + 1, params.get(i));
+	        }
+
+	        rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            Book book = new Book();
+	            book.setBookId(rs.getInt("book_id"));
+	            book.setTitle(rs.getString("title"));
+	            book.setAuthor(rs.getString("author"));
+	            book.setInterest(rs.getString("interest"));
+	            book.setGenre(rs.getString("genre"));
+	            book.setCoverArt(rs.getString("cover_art"));
+	            book.setAvailableCopies(rs.getInt("available_copies"));
+	            books.add(book);
 	        }
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+	        try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
 	    }
 
 	    return books;
 	}
+
 }

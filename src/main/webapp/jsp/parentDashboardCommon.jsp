@@ -5,6 +5,17 @@
     String username = (user != null) ? user.getUsername() : "Guest";
 %>
 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+<style>
+	body{
+	  font-family: "Montserrat", sans-serif;
+	}
+</style>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     <% if (request.getAttribute("loginSuccess") != null) { %>

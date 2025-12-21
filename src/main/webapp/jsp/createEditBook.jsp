@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,11 +61,35 @@ body {
 	font-weight: 600;
 }
 </style>
+
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+	    <% if (request.getAttribute("showToast") != null) { %>
+	        var toastEl = document.getElementById('liveToast');
+	        var toast = new bootstrap.Toast(toastEl);
+	        toast.show();
+	    <% } %>
+	});
+</script>
+
 </head>
 
 <body>
 
 	<div class="container-fluid p-4">
+		
+		<div class="toast-container position-fixed top-0 end-0 p-3">
+		  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+		    <div class="toast-header">
+		      <strong class="me-auto">Library System</strong>
+		      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+		    </div>
+		    <div class="toast-body">
+		      <c:out value="${toastMessage}" />
+		    </div>
+		  </div>
+		</div>
+		
 		<%@ include file="adminDashboardCommon.jsp"%>
 
 		<div class="row justify-content-center">
@@ -202,8 +228,13 @@ body {
 
 								<!-- Reading Difficulty -->
 								<div class="col-md-6">
-									<label class="form-label">Reading Difficulty</label> <input
-										type="text" name="reading_difficulty" class="form-control" />
+									<label class="form-label">Reading Difficulty</label> <select
+										class="form-select mb-3" name="reading_difficulty">
+										<option value="">Select Reading Difficulty</option>
+										<option>Beginner</option>
+										<option>Intermediate</option>
+										<option>Expert</option>
+									</select>
 								</div>
 
 								<!-- Series Name -->

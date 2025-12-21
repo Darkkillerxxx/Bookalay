@@ -1,7 +1,5 @@
 package com.Bookalay.pojo;
 
-import java.time.LocalDateTime;
-
 public class Book {
 
     private int bookId;
@@ -17,7 +15,7 @@ public class Book {
     private boolean isAvailable;
     private int totalCopies;
     private int availableCopies;
-    private LocalDateTime dateAdded;
+    private String dateAdded;
 
     // ----- Constructors -----
     public Book() {}
@@ -25,7 +23,7 @@ public class Book {
     public Book(int bookId, String title, String author, String interest, String genre,
                 String readingDifficulty, String seriesName, int pageCount, String summary,
                 String coverArt, boolean isAvailable, int totalCopies, int availableCopies,
-                LocalDateTime dateAdded) {
+                String dateAdded) {
 
         this.bookId = bookId;
         this.title = title;
@@ -149,11 +147,11 @@ public class Book {
         this.availableCopies = availableCopies;
     }
 
-    public LocalDateTime getDateAdded() {
+    public String getDateAdded() {
         return dateAdded;
     }
 
-    public void setDateAdded(LocalDateTime dateAdded) {
+    public void setDateAdded(String dateAdded) {
         this.dateAdded = dateAdded;
     }
 }

@@ -49,4 +49,14 @@ public class UserServiceImpl implements UserService {
 		return userDao.fetchUserProfile(parentId);
 	}
 
+	@Override
+	public Transaction rejectUserDetails(String parentId) {
+		return userDao.rejectUserDetails(parentId);
+	}
+
+	@Override
+	public List<ParentUser> fetchAllUser(String searchText) {
+		return userDao.fetchAllUsers(searchText);
+	}
+
 }

@@ -151,19 +151,20 @@ public class BooksController extends HttpServlet {
 
 			BookService dao = new BookServiceImpl();
 			Transaction result = dao.createBook(book);
-
-			if (result.isSuccess()) {
-				request.setAttribute("message", "Book added successfully!");
-			} else {
-				request.setAttribute("message", "Failed to add book");
+			
+			request.setAttribute("showToast", true);
+			request.setAttribute("transaction", result);
+			
+			if(result.isSuccess()) {
+			    response.sendRedirect("BooksController?action=manageBooks");
+			}else {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
+				dispatcher.forward(request, response);
 			}
-
-			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
-			dispatcher.forward(request, response);
+		
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			request.setAttribute("message", "Error while saving book");
 			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
 			dispatcher.forward(request, response);
 		}

@@ -63,53 +63,48 @@ public class RegisterController extends HttpServlet {
 		    String readingFrequency = request.getParameter("readingFrequency");
 		    String notes = request.getParameter("notes");
 		    
-		    formValidator(request,response,interests,username, password,reEnteredPassword, genres);
-
-			UserService userService = new UserServiceImpl();
-			
-			Transaction transaction = userService.insertUser(username, password, childName, age, gender, interests, parentName, phone, email, readingLevel, genres, readingFrequency, notes);
-			request.setAttribute("showToast", true);
-			request.setAttribute("toastMessage", transaction.getMessage());
-			request.getRequestDispatcher("jsp/register.jsp").forward(request, response);
-			
-			System.out.print(transaction.getMessage());
+		    Boolean hasValidationError = formValidator(request,response,interests,username, password,reEnteredPassword, genres);
+		    
+		    if(!hasValidationError) {
+				UserService userService = new UserServiceImpl();
+				
+				Transaction transaction = userService.insertUser(username, password, childName, age, gender, interests, parentName, phone, email, readingLevel, genres, readingFrequency, notes);
+				request.setAttribute("showToast", true);
+				request.setAttribute("toastMessage", transaction.getMessage());
+				request.getRequestDispatcher("/").forward(request, response);
+				
+				System.out.print(transaction.getMessage());
+		    }
+		   
 			// Now you can save this to DB or process it
 		}
 	}
 	
-	private void formValidator(HttpServletRequest request,HttpServletResponse response,String interests,String username, String password, String reEnteredPassword, String genres) { 
-		 try {
-			 boolean hasValidationError = false;
-			 
-			 if(username.length() == 0 || username == null) {
-			    request.setAttribute("errorMessage", "Please enter your Username");
-			    hasValidationError = true;
-			}
-			else if(interests.length() == 0 || interests == null) {
-			    request.setAttribute("errorMessage", "Please Select atleast one interest");
-			    hasValidationError = true;
-			}
-			else if(password.length() == 0 || password == null) {
-			    request.setAttribute("errorMessage", "Please Enter Your Password");
-			    hasValidationError = true;
-			}
-			else if(!password.equalsIgnoreCase(reEnteredPassword)) {
-			    request.setAttribute("errorMessage", "Your Password and Re-Entered Passwords do not Match");
-			    hasValidationError = true;
-			}
-			else if(genres.length() == 0 || genres == null) {
-			    request.setAttribute("errorMessage", "Please Select atleast one Genres");
-			    hasValidationError = true;
-			}
-						
-			if(hasValidationError) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/register.jsp");
-				dispatcher.forward(request, response);
-			}
-		} catch (ServletException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private boolean formValidator(HttpServletRequest request,HttpServletResponse response,String interests,String username, String password, String reEnteredPassword, String genres) { 
+		 boolean hasValidationError = false;
+		  
+		  if(username.length() == 0 || username == null) {
+		     request.setAttribute("errorMessage", "Please enter your Username");
+		     hasValidationError = true;
+		 }
+		 else if(interests.length() == 0 || interests == null) {
+		     request.setAttribute("errorMessage", "Please Select atleast one interest");
+		     hasValidationError = true;
+		 }
+		 else if(password.length() == 0 || password == null) {
+		     request.setAttribute("errorMessage", "Please Enter Your Password");
+		     hasValidationError = true;
+		 }
+		 else if(!password.equalsIgnoreCase(reEnteredPassword)) {
+		     request.setAttribute("errorMessage", "Your Password and Re-Entered Passwords do not Match");
+		     hasValidationError = true;
+		 }
+		 else if(genres.length() == 0 || genres == null) {
+		     request.setAttribute("errorMessage", "Please Select atleast one Genres");
+		     hasValidationError = true;
+		 }
+		 			
+		 return hasValidationError;
 	}
 
 	/**

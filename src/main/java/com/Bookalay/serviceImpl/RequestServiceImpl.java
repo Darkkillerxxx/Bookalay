@@ -14,8 +14,8 @@ public class RequestServiceImpl implements RequestService{
 	RequestDao requestDao = new RequestDaoImpl();
 	
 	@Override
-	public List<Request> fetchActiveRequests() {
-		return requestDao.fetchActiveRequests();
+	public List<Request> fetchActiveRequests(boolean isAdmin,String searchText) {
+		return requestDao.fetchActiveRequests(isAdmin,searchText);
 	}
 	
 	@Override
@@ -28,4 +28,34 @@ public class RequestServiceImpl implements RequestService{
 		return requestDao.fetchRequestsDetailsById(id);
 	}
 
+	@Override
+	public List<Request> fetchRequestsForBookId(String bookId) {
+		// TODO Auto-generated method stub
+		return requestDao.fetchRequestsForBookId(bookId);
+	}
+
+	@Override
+	public Request fetchRequestDetails(int id) {
+		return requestDao.fetchRequestDetails(id);
+	}
+
+	@Override
+	public Transaction approveRequest(int requestId) {
+		return requestDao.approveRequest(requestId);
+	}
+
+	@Override
+	public Transaction issueRequest(int requestId) {
+		return requestDao.issueRequest(requestId);
+	}
+
+	@Override
+	public Transaction rejectRequest(int requestId,String notes) {
+		return requestDao.rejectRequest(requestId,notes);
+	}
+
+	@Override
+	public Transaction returnRequest(int requestId) {
+		return requestDao.returnRequest(requestId);
+	}
 }

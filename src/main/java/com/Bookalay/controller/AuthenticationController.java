@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import com.Bookalay.pojo.ParentDashboardData;
 import com.Bookalay.pojo.User;
+import com.Bookalay.pojo.AdminDashboardData;
 import com.Bookalay.pojo.Book;
 import com.Bookalay.service.BookService;
 import com.Bookalay.service.DashboardService;
@@ -60,8 +61,7 @@ public class AuthenticationController extends HttpServlet {
 	                    request.setAttribute("loginSuccess", true);
 	                    
 		                if(user.getUserType().equalsIgnoreCase("admin")) {
-		                    RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
-		                    dispatcher.forward(request, response);
+		                	setAdminMetrics(request,response);
 		                } else {
 		                	setParentMetrics(user.getUserId(),request,response);
 		                }
@@ -91,9 +91,8 @@ public class AuthenticationController extends HttpServlet {
 		    		com.Bookalay.pojo.User loggedInUser = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
 		    	
 		    		
-		    		if(loggedInUser.getUserType() == "admin") {
-		    			 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
-	                     dispatcher.forward(request, response);
+		    		if("admin".equalsIgnoreCase(loggedInUser.getUserType())) {
+	                	setAdminMetrics(request,response);
 		    		}else {
 		    			 setParentMetrics(loggedInUser.getUserId(),request,response);
 		    		}
@@ -126,7 +125,7 @@ public class AuthenticationController extends HttpServlet {
 		 pdd.setOverdueBooks(dashboardService.getOverdueBooks(userId));
 		 pdd.setReturnedBooksHistory(dashboardService.getReturnedBooks(userId));
 		 pdd.setUpcomingReturns(dashboardService.getUpcomingDue(userId, 7));
-		 
+		
 		 List<Book> recommendedBooksList = bookService.recommendBooksForParent(userId);
 		 request.setAttribute("recommendedBooks", recommendedBooksList);
 		 
@@ -134,6 +133,32 @@ public class AuthenticationController extends HttpServlet {
 		 
 		 request.setAttribute("dashboardMetrics", pdd);
 		 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/parentDashboard.jsp");
+         dispatcher.forward(request, response);
+	}
+	
+	private void setAdminMetrics(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+		
+		DashboardService dashboardService = new DashboardServiceImpl();
+		 
+		 AdminDashboardData add = new AdminDashboardData();
+
+		 add.setTotalUsers(dashboardService.getTotalUsersForAdmin());
+		 add.setBooksIssued(dashboardService.getTotalBooksIssuedForAdmin());
+		 add.setBooksRead(dashboardService.getTotalBooksReadForAdmin());
+		 add.setUsersWaitingForApproval(dashboardService.getUsersWaitingForApproval());
+		 add.setInactiveUsers(dashboardService.getInactiveUsersForAdmin());
+		 add.setOverdueBooks(dashboardService.getOverdueBooksForAdmin());
+		 add.setTotalBooksAvailable(dashboardService.getTotalBooksAvailableForAdmin());
+		 add.setNewBooksRequestedToday(dashboardService.getNewBooksRequestedToday());
+		 add.setUpcomingReturns(dashboardService.getUpcomingDueRequestForAdmin(8));
+		 add.setTodayReturns(dashboardService.getTodayReturnRequestForAdmin());
+		 add.setRecentIssues(dashboardService.getRecentBookIssuesForAdmin());
+		 add.setBooksOverdue(dashboardService.getOverdueBooksAdmin());
+		 add.setUsersForApproval(dashboardService.getUsersForApprovalForAdmin());
+		 
+		 request.setAttribute("adminDashboardMetrics", add);
+		 
+		 RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
          dispatcher.forward(request, response);
 	}
 

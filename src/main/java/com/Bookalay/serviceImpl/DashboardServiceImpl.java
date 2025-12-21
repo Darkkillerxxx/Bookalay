@@ -6,6 +6,7 @@ import java.util.Map;
 import com.Bookalay.dao.DashboardDao;
 import com.Bookalay.daoImpl.DashboardDaoImpl;
 import com.Bookalay.pojo.Request;
+import com.Bookalay.pojo.User;
 import com.Bookalay.service.DashboardService;
 
 public class DashboardServiceImpl implements DashboardService {
@@ -76,4 +77,69 @@ public class DashboardServiceImpl implements DashboardService {
     public List<Request> getUpcomingDue(int parentId, int days) {
         return dashboardDao.getUpcomingDue(parentId, days);
     }
+
+	@Override
+	public int getTotalUsersForAdmin() {
+		return dashboardDao.getTotalUsersForAdmin();
+	}
+
+	@Override
+	public int getTotalBooksIssuedForAdmin() {
+		return dashboardDao.getTotalBooksIssuedForAdmin();
+	}
+
+	@Override
+	public int getTotalBooksReadForAdmin() {
+		return dashboardDao.getTotalBooksReadForAdmin();
+	}
+
+	@Override
+	public int getUsersWaitingForApproval() {
+		return dashboardDao.getUsersWaitingForApproval();
+	}
+
+	@Override
+	public int getInactiveUsersForAdmin() {
+		return dashboardDao.getInactiveUsersForAdmin();
+	}
+
+	@Override
+	public int getOverdueBooksForAdmin() {
+		return dashboardDao.getOverdueBooksForAdmin();
+	}
+
+	@Override
+	public int getTotalBooksAvailableForAdmin() {
+		return dashboardDao.getTotalBooksAvailableForAdmin();
+	}
+
+	@Override
+	public int getNewBooksRequestedToday() {
+		return dashboardDao.getNewBooksRequestedToday();
+	}
+
+	@Override
+	public List<Request> getUpcomingDueRequestForAdmin(int days) {
+		return dashboardDao.getUpcomingDueRequestForAdmin(days);
+	}
+
+	@Override
+	public List<Request> getTodayReturnRequestForAdmin() {
+		return dashboardDao.getTodayReturnRequestForAdmin();
+	}
+
+	@Override
+	public List<Request> getRecentBookIssuesForAdmin() {
+		return dashboardDao.getRecentBookIssuesForAdmin();
+	}
+
+	@Override
+	public List<User> getUsersForApprovalForAdmin() {
+		return dashboardDao.getUsersForApprovalForAdmin();
+	}
+
+	@Override
+	public List<Request> getOverdueBooksAdmin() {
+		return dashboardDao.getOverdueBooksAdmin();
+	}
 }

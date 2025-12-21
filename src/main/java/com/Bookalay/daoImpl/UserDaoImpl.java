@@ -23,7 +23,7 @@ public class UserDaoImpl implements UserDao {
 		ResultSet rs = null;
 		PreparedStatement preparedStatement = null;
 
-		String query = "SELECT * FROM user WHERE username = ? AND password_hash = ?";
+		String query = "SELECT * FROM user WHERE username = ? AND password_hash = ? AND isApproved = true AND is_active = 1";
 
 		try {
 			conn = DbUtil.getConnection();
@@ -196,7 +196,7 @@ public class UserDaoImpl implements UserDao {
 
 		String query = "SELECT p.parent_id, p.user_id, p.parent_name, p.email, p.phone, p.registration_date, "
 				+ "u.username, u.user_type, u.is_active, u.created_date " + "FROM parent p "
-				+ "INNER JOIN user u ON p.user_id = u.user_id " + "WHERE u.isApproved = 0 "
+				+ "INNER JOIN user u ON p.user_id = u.user_id " + "WHERE (u.isApproved = 0 AND u.isRejected = 0)"
 				+ "AND (p.parent_name LIKE ? OR p.email LIKE ? OR u.username LIKE ?)";
 
 		try {
@@ -254,7 +254,7 @@ public class UserDaoImpl implements UserDao {
 
 		String query = "SELECT p.parent_id, p.user_id, p.parent_name, p.email, p.phone, p.registration_date, "
 				+ "u.username, u.user_type, u.is_active, u.created_date " + "FROM parent p "
-				+ "INNER JOIN user u ON p.user_id = u.user_id " + "WHERE u.is_active = 1"
+				+ "INNER JOIN user u ON p.user_id = u.user_id "
 				+ "AND (p.parent_name LIKE ? OR p.email LIKE ? OR u.username LIKE ?)";
 
 		try {
@@ -591,6 +591,64 @@ public class UserDaoImpl implements UserDao {
 
 	    return transaction;
 	}
+	
+	@Override
+	public Transaction rejectUserDetails(String parentId) {
+
+	    Connection conn = null;
+	    PreparedStatement stmt = null;
+	    Transaction transaction = new Transaction();
+
+	    try {
+	        conn = DbUtil.getConnection();
+
+	        // STEP 1: Get user_id from parent
+	        String getUserSql = "SELECT user_id FROM parent WHERE parent_id = ?";
+	        stmt = conn.prepareStatement(getUserSql);
+	        stmt.setString(1, parentId);
+
+	        ResultSet rs = stmt.executeQuery();
+
+	        if (!rs.next()) {
+	            transaction.setSuccess(false);
+	            transaction.setMessage("Parent not found");
+	            return transaction;
+	        }
+
+	        int userId = rs.getInt("user_id");
+
+	        stmt.close();
+
+	        // STEP 2: Approve user (set isApproved = 1)
+	        String updateSql = "UPDATE user SET isRejected = 1 WHERE user_id = ?";
+	        stmt = conn.prepareStatement(updateSql);
+	        stmt.setInt(1, userId);
+
+	        int updated = stmt.executeUpdate();
+
+	        if (updated > 0) {
+	            transaction.setSuccess(true);
+	            transaction.setMessage("User Record has been Rejected successfully");
+	        } else {
+	            transaction.setSuccess(false);
+	            transaction.setMessage("Could not update user approval status");
+	        }
+
+	    } catch (Exception e) {
+
+	        transaction.setSuccess(false);
+	        transaction.setMessage("Error approving user: " + e.getMessage());
+	        e.printStackTrace();
+
+	    } finally {
+	        try { if (stmt != null) stmt.close(); } catch (Exception ignore) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignore) {}
+	    }
+
+	    return transaction;
+	}
+	
+	
 	
 	
 	
