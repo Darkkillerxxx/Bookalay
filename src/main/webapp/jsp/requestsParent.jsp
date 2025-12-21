@@ -14,6 +14,7 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 	rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
 body {
@@ -29,12 +30,36 @@ body {
 	vertical-align: middle;
 }
 </style>
+
+<c:if test="${showToast}">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toastEl = document.getElementById('liveToast');
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+        });
+    </script>
+</c:if>
+
+
 </head>
 
 <body>
-
+	<div class="toast-container position-fixed top-0 end-0 p-3">
+	  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+	    <div class="toast-header">
+	      <strong class="me-auto">Library System</strong>
+	      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+	    </div>
+	    <div class="toast-body">
+	      <c:out value="${toastMessage}" />
+	    </div>
+	  </div>
+	</div>
 	<div class="container-fluid p-4">
-
+		
 		<%@ include file="parentDashboardCommon.jsp"%>
 
 		<div class="row">
@@ -58,6 +83,7 @@ body {
 									<th>Requested Date</th>
 									<th>Due Date</th>
 									<th>Status</th>
+									<th>Action</th>
 								</tr>
 							</thead>
 
@@ -126,6 +152,16 @@ body {
 														</c:otherwise>
 
 													</c:choose></td>
+													
+												<td>
+													<form action="RequestController" method="get" class="m-0">
+														<input type="hidden" name="action"
+															value="viewSingleRequest" /> <input type="hidden"
+															name="requestId" value="${r.requestId}" /> <a
+															href="RequestController?action=requestDetailsParent&requestId=${r.requestId}"
+															class="btn btn-sm btn-primary"> View Request </a>
+													</form>
+												</td>
 
 
 											</tr>

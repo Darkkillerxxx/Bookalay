@@ -57,11 +57,22 @@ public class DashboardController extends HttpServlet {
 
 		case "home":
 			com.Bookalay.pojo.User loggedInUser = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
-			if (loggedInUser.getUserType() == "admin") {
+			DashboardService dashboardService = new DashboardServiceImpl();
+
+			if ("admin".equalsIgnoreCase(loggedInUser.getUserType())) {
+				System.out.print(dashboardService.getTotalUsersForAdmin());
+				request.setAttribute("totalUsers", dashboardService.getTotalUsersForAdmin());
+				request.setAttribute("booksIssued", dashboardService.getTotalBooksIssuedForAdmin());
+				request.setAttribute("booksRead", dashboardService.getTotalBooksReadForAdmin());
+				request.setAttribute("usersWaitingForApproval", dashboardService.getUsersWaitingForApproval());
+				request.setAttribute("inactiveUsers", dashboardService.getInactiveUsersForAdmin());
+				request.setAttribute("overdueBooks", dashboardService.getOverdueBooksForAdmin());
+				request.setAttribute("totalBooksAvailable", dashboardService.getTotalBooksAvailableForAdmin());
+				request.setAttribute("newBooksRequestedToday", dashboardService.getNewBooksRequestedToday());
+				
 				RequestDispatcher adminDispatcher = request.getRequestDispatcher("jsp/adminDashboard.jsp");
 				adminDispatcher.forward(request, response);
 			} else {
-				DashboardService dashboardService = new DashboardServiceImpl();
 				// In real app, get parentId from logged-in user/session
 				String parentIdParam = request.getParameter("parentId");
 				int parentId = (parentIdParam != null) ? Integer.parseInt(parentIdParam) : 1;
@@ -72,6 +83,9 @@ public class DashboardController extends HttpServlet {
 				int overdueCount = dashboardService.getOverdueBooksCount(parentId);
 				int dueSoonCount = dashboardService.getUpcomingDue(parentId, 3).size();
 				int booksReturned = dashboardService.getBooksReturned(parentId);
+				
+				List<Request> upcommingDueRequest = dashboardService.getUpcomingDueRequestForAdmin(7);
+				
 				Map<String, Integer> byStatus = dashboardService.getCountsByStatus(parentId);
 
 				request.setAttribute("totalRequests", totalRequests);
@@ -80,6 +94,7 @@ public class DashboardController extends HttpServlet {
 				request.setAttribute("dueSoonCount", dueSoonCount);
 				request.setAttribute("booksReturned", booksReturned);
 				request.setAttribute("statusCounts", byStatus);
+				request.setAttribute("upcommingDueRequest",upcommingDueRequest);
 
 				// 2) Tables
 				List<Request> recentRequests = dashboardService.getRecentRequests(parentId, 5);

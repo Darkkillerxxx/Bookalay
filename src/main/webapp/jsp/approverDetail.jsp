@@ -184,9 +184,27 @@ if (show != null && show) {
 
 		</div>
 
-		<a
-			href="ManageApprovalsController?action=approveUser&userId=${parent.parentId}"
-			class="btn btn-success px-4 py-2"> Approve </a>
+		<c:if test="${isApproved eq null}">
+			<div class="flex-row-reverse bd-highlight">
+				<a
+					href="ManageApprovalsController?action=approveUser&userId=${parent.parentId}"
+					class="btn btn-success px-4 py-2 bd-highlight"> Approve </a> <a
+					href="ManageApprovalsController?action=rejectUser&userId=${parent.parentId}"
+					class="btn btn-danger px-4 py-2 bd-highlight"> Reject </a>
+			</div>
+		</c:if>
+		
+		<c:if test="${isApproved eq true}">
+			<div class="alert alert-success text-center" role="alert">
+			  This user has been Approved !!!
+			</div>
+		</c:if>
+		
+		<c:if test="${isApproved eq false}">
+			<div class="alert alert-danger text-center" role="alert">
+			  This user has been Rejected !!!
+			</div>
+		</c:if>
 	</div>
 
 </body>

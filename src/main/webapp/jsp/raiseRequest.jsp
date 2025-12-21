@@ -13,11 +13,11 @@
 
 <body class="bg-light">
 
-	<div class="container mt-5">
+	<div class="container-fluid mt-5">
 		<%@ include file="parentDashboardCommon.jsp"%>
 		
 		<div class="card shadow-lg p-4"
-			style="max-width: 800px; margin: auto;">
+			style="max-width: 1000px; margin: auto;">
 			<h3 class="text-center mb-4">Raise Book Request</h3>
 
 			<!-- FORM START -->
@@ -34,8 +34,8 @@
 
 				<!-- Request Date (readonly, auto-filled) -->
 				<div class="mb-3">
-					<label class="form-label">Return Date</label> <input
-						type="date" class="form-control" name="return_date"/>
+					<label class="form-label">Request Date (Date you want the book to be issued)</label> <input
+						type="date" class="form-control" name="request_date"/>
 				</div>
 
 				<!-- Notes -->

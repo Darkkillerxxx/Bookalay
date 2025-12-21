@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.Bookalay.pojo.Request;
+import com.Bookalay.pojo.User;
 
 public interface DashboardService {
 	 // Aggregate metric methods
@@ -31,4 +32,31 @@ public interface DashboardService {
     List<Request> getReturnedBooks(int parentId);
 
     List<Request> getUpcomingDue(int parentId, int days);
+    
+    int getTotalUsersForAdmin();
+
+	int getTotalBooksIssuedForAdmin();
+
+	int getTotalBooksReadForAdmin();
+
+	int getUsersWaitingForApproval();
+
+	int getInactiveUsersForAdmin();
+
+	int getOverdueBooksForAdmin();
+
+	int getTotalBooksAvailableForAdmin();
+
+	int getNewBooksRequestedToday();
+	
+	List<Request> getUpcomingDueRequestForAdmin(int days);
+
+	List<Request> getTodayReturnRequestForAdmin();
+
+	List<Request> getRecentBookIssuesForAdmin();
+
+	List<User> getUsersForApprovalForAdmin();
+	
+	List<Request> getOverdueBooksAdmin();
+
 }

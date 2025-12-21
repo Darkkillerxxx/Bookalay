@@ -12,7 +12,9 @@ public interface UserService {
 	public User checkLogin(String Username,String Password);
 	public Transaction insertUser(String Username, String Password, String childName, String age, String gender,String interests,String parentName,String phoneNumber,String email,String readingLevel,String genres,String readingFrequency,String notes);
 	public List<ParentUser> fetchParentUsersForApproval(String searchText);
+	public List<ParentUser> fetchAllUser(String searchText);
 	public ParentUser fetchUserDetails(String parentId);
 	public Transaction approveUserDetails(String parentId);
 	public UserProfile fetchUserProfile(String parentId);
+	public Transaction rejectUserDetails(String parentId);
 }

@@ -92,7 +92,35 @@ public class ManageApprovalsController extends HttpServlet {
 
 	            request.setAttribute("userId", approveParentId);
 	            request.setAttribute("showToast", transaction.isSuccess());
+	            if(transaction.isSuccess()) {
+		            request.setAttribute("isApproved", true);
+	            }
 	            request.setAttribute("toastMessage", transaction.getMessage());
+
+	            request.getRequestDispatcher("jsp/approverDetail.jsp")
+	                   .forward(request, response);
+
+	            break;
+	            
+	        case "rejectUser":
+
+	            String rejectedParentId = request.getParameter("userId");
+	            System.out.println("Rejected ParentId --> " + rejectedParentId);
+
+	            Transaction transactionOnRejection = userService.rejectUserDetails(rejectedParentId);
+	            
+	            ParentUser rejectedParentUser = userService.fetchUserDetails(rejectedParentId);
+	            System.out.println(rejectedParentUser);
+
+	            // *** PASS OBJECT TO JSP ***
+	            request.setAttribute("parent", rejectedParentUser);
+
+	            request.setAttribute("userId", rejectedParentUser);
+	            request.setAttribute("showToast", transactionOnRejection.isSuccess());
+	            if(transactionOnRejection.isSuccess()) {
+		            request.setAttribute("isApproved", false);
+	            }
+	            request.setAttribute("toastMessage", transactionOnRejection.getMessage());
 
 	            request.getRequestDispatcher("jsp/approverDetail.jsp")
 	                   .forward(request, response);

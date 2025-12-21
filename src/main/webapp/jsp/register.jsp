@@ -236,8 +236,15 @@
 			            </div>
 			
 			            <label class="form-label">Reading Frequency</label>
-			            <input type="text" class="form-control mb-3" name="readingFrequency" placeholder="How often does your child read?">
-			
+			            <select class="form-select mb-3" name="readingFrequency">
+			                <option value="">Select Reading frequency</option>
+			                <option>4–6 times a week</option>
+			                <option>2–3 times a week</option>
+			                <option>Once a week</option>
+			                <option>Once or twice a month</option>
+			                <option>Rarely</option>    
+			            </select>
+			            
 			            <label class="form-label">Additional Notes</label>
 			            <textarea class="form-control" rows="3" name="notes" placeholder="Any specific preferences or learning goals..."></textarea>
 		            </div>
