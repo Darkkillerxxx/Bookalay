@@ -59,4 +59,11 @@ public class UserServiceImpl implements UserService {
 		return userDao.fetchAllUsers(searchText);
 	}
 
+	@Override
+	public Transaction updateProfile(int userId, int parentId, int childId, String username, String parentName,
+			String email, String phone, String childName, int age, String gender, String interests, String readingLevel,
+			String genres, String readingFrequency, String notes) {
+		
+		return userDao.updateProfile(userId, parentId, childId, username, parentName, email, phone, childName, age, gender, interests, readingLevel, genres, readingFrequency, notes);
+	}
 }

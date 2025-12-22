@@ -618,6 +618,7 @@ public class RequestDaoImpl implements RequestDao {
 
         try {
             conn = DbUtil.getConnection();
+            conn.setAutoCommit(false); // IMPORTANT (transaction safety)
 
             /* -----------------------------------
                1. Get book_id, request_date & available copies
@@ -633,9 +634,9 @@ public class RequestDaoImpl implements RequestDao {
             ps.setInt(1, requestId);
             rs = ps.executeQuery();
 
-            int bookId = 0;
-            Date requestDate = null;
-            int availableCopies = 0;
+            int bookId;
+            Date requestDate;
+            int availableCopies;
 
             if (rs.next()) {
                 bookId = rs.getInt("book_id");
@@ -651,17 +652,26 @@ public class RequestDaoImpl implements RequestDao {
             ps.close();
 
             /* -----------------------------------
-               2. If copies available → approve
+               2. Copies available → approve + reduce book copies
             ------------------------------------- */
             if (availableCopies > 0) {
-            	availableCopies = availableCopies - 1;
-                String approveSql =
-                    "UPDATE requests SET status = 'approved',available_copies= ? WHERE request_id = ?";
 
+                // 2.1 Approve request
+                String approveSql =
+                        "UPDATE requests SET status = 'approved' WHERE request_id = ?";
                 ps = conn.prepareStatement(approveSql);
-                ps.setInt(1, availableCopies);
-                ps.setInt(2, requestId);
+                ps.setInt(1, requestId);
                 ps.executeUpdate();
+                ps.close();
+
+                // 2.2 Reduce available copies in BOOK table
+                String updateBookSql =
+                        "UPDATE book SET available_copies = available_copies - 1 WHERE book_id = ?";
+                ps = conn.prepareStatement(updateBookSql);
+                ps.setInt(1, bookId);
+                ps.executeUpdate();
+
+                conn.commit();
 
                 t.setSuccess(true);
                 t.setMessage("Request approved successfully.");
@@ -669,7 +679,7 @@ public class RequestDaoImpl implements RequestDao {
             }
 
             /* -----------------------------------
-               3. Check due dates of issued/approved requests
+               3. Check last due date for future availability
             ------------------------------------- */
             String dueSql = """
                 SELECT MAX(due_date) AS last_due
@@ -691,25 +701,28 @@ public class RequestDaoImpl implements RequestDao {
             ps.close();
 
             /* -----------------------------------
-               4. Approve only if request_date > all due_dates
+               4. Approve only if request is AFTER last due
             ------------------------------------- */
             if (lastDueDate != null && requestDate.after(lastDueDate)) {
 
                 String approveSql =
-                    "UPDATE requests SET status = 'approved' WHERE request_id = ?";
-
+                        "UPDATE requests SET status = 'approved' WHERE request_id = ?";
                 ps = conn.prepareStatement(approveSql);
                 ps.setInt(1, requestId);
                 ps.executeUpdate();
 
+                conn.commit();
+
                 t.setSuccess(true);
                 t.setMessage("Request approved (future availability confirmed).");
             } else {
+                conn.rollback();
                 t.setSuccess(false);
                 t.setMessage("No copies available to approve this request.");
             }
 
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
             t.setSuccess(false);
             t.setMessage("Error: " + e.getMessage());
             e.printStackTrace();
@@ -721,6 +734,7 @@ public class RequestDaoImpl implements RequestDao {
 
         return t;
     }
+
     
     @Override
     public Transaction returnRequest(int requestId) {

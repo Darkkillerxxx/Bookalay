@@ -18,6 +18,7 @@ import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
 import com.Bookalay.service.RequestService;
 import com.Bookalay.serviceImpl.RequestServiceImpl;
+import com.Bookalay.util.UserUtil;
 
 /**
  * Servlet implementation class RequestController
@@ -37,7 +38,8 @@ public class RequestController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getParameter("action").trim();
 		System.out.print(action);
-		User user = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
+		
+		User user = UserUtil.fetchLoggedInUser(request, response);
 		String userType = user.getUserType();
 		RequestService requestService = new RequestServiceImpl();
 

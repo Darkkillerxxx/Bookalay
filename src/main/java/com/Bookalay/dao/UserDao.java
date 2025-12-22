@@ -32,4 +32,7 @@ public interface UserDao {
 	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive);
 	public UserProfile fetchUserProfile(String parentId);
 	public Transaction rejectUserDetails(String parentId);
+	public Transaction updateProfile(int userId, int parentId, int childId, String username, String parentName, String email,
+			String phone, String childName, int age, String gender, String interests, String readingLevel,
+			String genres, String readingFrequency, String notes);
 }

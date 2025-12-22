@@ -9,9 +9,12 @@
 <meta charset="UTF-8">
 <title>Update Profile</title>
 
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-	rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <style>
 body {
@@ -26,16 +29,38 @@ body {
 
 </head>
 
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+	    <% if (request.getAttribute("showToast") != null) { %>
+	        var toastEl = document.getElementById('liveToast');
+	        var toast = new bootstrap.Toast(toastEl);
+	        toast.show();
+	    <% } %>
+	});
+</script>
+
 <body>
 
 	<div class="container-fluid p-4">
-
+		<div class="toast-container position-fixed top-0 end-0 p-3">
+			<div id="liveToast" class="toast" role="alert" aria-live="assertive"
+				aria-atomic="true">
+				<div class="toast-header">
+					<strong class="me-auto">Library System</strong>
+					<button type="button" class="btn-close" data-bs-dismiss="toast"
+						aria-label="Close"></button>
+				</div>
+				<div class="toast-body">
+					<c:out value="${transaction.message}" />
+				</div>
+			</div>
+		</div>
 		<%@ include file="parentDashboardCommon.jsp"%>
 
 		<div class="row">
 			<div class="col-12">
 
-				<div class="card p-3 mt-3">
+				<div class="card p-0 p-3 mt-3">
 
 					<div
 						class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -170,15 +195,15 @@ body {
 								value="${profile.child.readingFrequency}"> <label
 								class="form-label">Notes</label>
 							<textarea class="form-control" rows="3" name="notes">${profile.child.notes}</textarea>
-
-							<div class="mt-4">
-								<button class="btn btn-primary w-100">Update Profile</button>
+							
+							<div class="mt-4 d-flex justify-content-end">
+								<button class="btn btn-primary w-25">Update Profile</button>
 							</div>
-
 						</form>
-
 					</div>
 				</div>
+
+				
 
 			</div>
 		</div>

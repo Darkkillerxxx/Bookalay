@@ -39,5 +39,10 @@ public class BookServiceImpl implements BookService {
 		// TODO Auto-generated method stub
 		return bookDao.recommendBooksForParent(parentId);
 	}
+
+	@Override
+	public Transaction editBook(Book book) {
+		return bookDao.editBook(book);
+	}
 	
 }

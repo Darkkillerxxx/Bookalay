@@ -378,21 +378,19 @@ public class UserDaoImpl implements UserDao {
 	    PreparedStatement ps = null;
 	    ResultSet rs = null;
 
-	    String query = "SELECT "
-	            + "u.user_id, u.username, u.password_hash, u.user_type, u.last_login, "
-	            + "u.is_active, u.created_date, u.isApproved, "
-	            + "p.parent_id, p.parent_name, p.email, p.phone, p.registration_date, "
-	            + "c.child_id, c.child_name, c.age, c.gender, c.interests, "
-	            + "c.reading_level, c.genres, c.reading_frequency, c.notes "
-	            + "FROM parent p "
-	            + "JOIN user u ON p.user_id = u.user_id "
-	            + "LEFT JOIN child c ON p.parent_id = c.parent_id "
-	            + "WHERE p.parent_id = ?";
+	    String query =
+	            "SELECT " +
+	            "u.user_id, u.username, u.password_hash, u.user_type, u.last_login, " +
+	            "u.is_active, u.created_date, u.isApproved, " +
+	            "p.parent_id, p.parent_name, p.email, p.phone, p.registration_date, " +
+	            "c.child_id, c.child_name, c.age, c.gender, c.interests, " +
+	            "c.reading_level, c.genres, c.reading_frequency, c.notes " +
+	            "FROM parent p " +
+	            "JOIN user u ON p.user_id = u.user_id " +
+	            "LEFT JOIN child c ON p.parent_id = c.parent_id " +
+	            "WHERE p.user_id = ?";
 
 	    UserProfile profile = new UserProfile();
-	    ParentUser parent = new ParentUser();
-	    User user = new User();
-	    ChildUser child = null;
 
 	    try {
 	        conn = DbUtil.getConnection();
@@ -402,7 +400,8 @@ public class UserDaoImpl implements UserDao {
 
 	        if (rs.next()) {
 
-	            // USER FIELDS
+	            // ===== USER =====
+	            User user = new User();
 	            user.setUserId(rs.getInt("user_id"));
 	            user.setUsername(rs.getString("username"));
 	            user.setPasswordHash(rs.getString("password_hash"));
@@ -411,48 +410,48 @@ public class UserDaoImpl implements UserDao {
 	            user.setActive(rs.getBoolean("is_active"));
 	            user.setCreatedDate(rs.getString("created_date"));
 
-	            // PARENT FIELDS
+	            // ===== PARENT =====
+	            ParentUser parent = new ParentUser();
 	            parent.setParentId(rs.getInt("parent_id"));
 	            parent.setParentName(rs.getString("parent_name"));
 	            parent.setEmail(rs.getString("email"));
 	            parent.setPhone(rs.getString("phone"));
-	            parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
+	            parent.setRegistrationDate(
+	                    rs.getTimestamp("registration_date") != null
+	                            ? rs.getTimestamp("registration_date").toLocalDateTime()
+	                            : null
+	            );
 
-	            // CHILD (only one)
-	            int childId = rs.getInt("child_id");
-	            if (childId != 0) {
-	                child = new ChildUser();
-	                child.setChildId(childId);
-	                child.setParentId(rs.getInt("parent_id"));
-	                child.setChildName(rs.getString("child_name"));
-	                child.setAge(rs.getInt("age"));
-	                child.setGender(rs.getString("gender"));
-	                child.setInterests(rs.getString("interests"));
-	                child.setReadingLevel(rs.getString("reading_level"));
-	                child.setGenres(rs.getString("genres"));
-	                child.setReadingFrequency(rs.getString("reading_frequency"));
-	                child.setNotes(rs.getString("notes"));
-	            }
+	            // ===== CHILD (ALWAYS CREATED) =====
+	            ChildUser child = new ChildUser();
+	            child.setChildId(rs.getInt("child_id"));
+	            child.setParentId(rs.getInt("parent_id"));
+	            child.setChildName(rs.getString("child_name"));
+	            child.setAge(rs.getInt("age"));
+	            child.setGender(rs.getString("gender"));
+	            child.setInterests(rs.getString("interests"));
+	            child.setReadingLevel(rs.getString("reading_level"));
+	            child.setGenres(rs.getString("genres"));
+	            child.setReadingFrequency(rs.getString("reading_frequency"));
+	            child.setNotes(rs.getString("notes"));
+
+	            profile.setUser(user);
+	            profile.setParent(parent);
+	            profile.setChild(child);
 	        }
-
-	        profile.setUser(user);
-	        profile.setParent(parent);
-	        profile.setChild(child);
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    } finally {
-	        try {
-	            if (rs != null) rs.close();
-	            if (ps != null) ps.close();
-	            if (conn != null) conn.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
+	        try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+	        try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
 	    }
 
 	    return profile;
 	}
+
+
 
 
 
@@ -591,6 +590,95 @@ public class UserDaoImpl implements UserDao {
 
 	    return transaction;
 	}
+	
+	@Override
+	public Transaction updateProfile(
+	        int userId,
+	        int parentId,
+	        int childId,
+	        String username,
+	        String parentName,
+	        String email,
+	        String phone,
+	        String childName,
+	        int age,
+	        String gender,
+	        String interests,
+	        String readingLevel,
+	        String genres,
+	        String readingFrequency,
+	        String notes
+	) {
+
+	    Connection conn = null;
+	    PreparedStatement psUser = null;
+	    PreparedStatement psParent = null;
+	    PreparedStatement psChild = null;
+
+	    try {
+	        conn = DbUtil.getConnection();
+	        conn.setAutoCommit(false); // 🔐 TRANSACTION START
+
+	        /* ================= USER ================= */
+	        String userSql =
+	            "UPDATE user SET username = ? WHERE user_id = ?";
+	        psUser = conn.prepareStatement(userSql);
+	        psUser.setString(1, username);
+	        psUser.setInt(2, userId);
+	        psUser.executeUpdate();
+
+	        /* ================= PARENT ================= */
+	        String parentSql =
+	            "UPDATE parent SET parent_name = ?, email = ?, phone = ? WHERE parent_id = ?";
+	        psParent = conn.prepareStatement(parentSql);
+	        psParent.setString(1, parentName);
+	        psParent.setString(2, email);
+	        psParent.setString(3, phone);
+	        psParent.setInt(4, parentId);
+	        psParent.executeUpdate();
+
+	        /* ================= CHILD ================= */
+	        String childSql =
+	            "UPDATE child SET " +
+	            "child_name = ?, age = ?, gender = ?, interests = ?, " +
+	            "reading_level = ?, genres = ?, reading_frequency = ?, notes = ? " +
+	            "WHERE child_id = ?";
+
+	        psChild = conn.prepareStatement(childSql);
+	        psChild.setString(1, childName);
+	        psChild.setInt(2, age);
+	        psChild.setString(3, gender);
+	        psChild.setString(4, interests);
+	        psChild.setString(5, readingLevel);
+	        psChild.setString(6, genres);
+	        psChild.setString(7, readingFrequency);
+	        psChild.setString(8, notes);
+	        psChild.setInt(9, childId);
+	        psChild.executeUpdate();
+
+	        conn.commit(); // ✅ SUCCESS
+	        
+	        Transaction transaction = new Transaction();
+	        transaction.setSuccess(true);
+	        transaction.setMessage("Your Profile has been updated Successfully");
+	        
+	        return transaction;
+	        
+	    } catch (Exception e) {
+	        try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
+	        Transaction transaction = new Transaction();
+	        transaction.setSuccess(true);
+	        transaction.setMessage("Your Profile Update was Unsuccesfull please contact your Admin");
+	        
+	        return transaction;
+	    } finally {
+	        try { if (psUser != null) psUser.close(); } catch (Exception ignored) {}
+	        try { if (psParent != null) psParent.close(); } catch (Exception ignored) {}
+	        try { if (psChild != null) psChild.close(); } catch (Exception ignored) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+	    }
+	}
+
 	
 	@Override
 	public Transaction rejectUserDetails(String parentId) {

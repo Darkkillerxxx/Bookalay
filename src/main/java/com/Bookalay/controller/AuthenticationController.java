@@ -21,6 +21,7 @@ import com.Bookalay.service.UserService;
 import com.Bookalay.serviceImpl.BookServiceImpl;
 import com.Bookalay.serviceImpl.DashboardServiceImpl;
 import com.Bookalay.serviceImpl.UserServiceImpl;
+import com.Bookalay.util.UserUtil;
 
 /**
  * Servlet implementation class AuthenticationController
@@ -116,15 +117,17 @@ public class AuthenticationController extends HttpServlet {
 		BookService bookService = new BookServiceImpl();
 		 
 		 ParentDashboardData pdd = new ParentDashboardData();
-		 pdd.setTotalBooksRequested(dashboardService.getTotalRequests(userId));
-		 pdd.setBooksCurrentlyIssued(dashboardService.getBooksCurrentlyIssued(userId));
-		 pdd.setBooksOverdue(dashboardService.getOverdueBooksCount(userId));
-		 pdd.setBooksReturned(dashboardService.getBooksReturned(userId));
-		 pdd.setRecentBookRequests(dashboardService.getRecentRequests(userId, 5));
-		 pdd.setBooksCurrentlyIssuedList(dashboardService.getIssuedBooks(userId));
-		 pdd.setOverdueBooks(dashboardService.getOverdueBooks(userId));
-		 pdd.setReturnedBooksHistory(dashboardService.getReturnedBooks(userId));
-		 pdd.setUpcomingReturns(dashboardService.getUpcomingDue(userId, 7));
+         Integer parentId = UserUtil.getParentIdByUserId(userId);
+		 
+		 pdd.setTotalBooksRequested(dashboardService.getTotalRequests(parentId));
+		 pdd.setBooksCurrentlyIssued(dashboardService.getBooksCurrentlyIssued(parentId));
+		 pdd.setBooksOverdue(dashboardService.getOverdueBooksCount(parentId));
+		 pdd.setBooksReturned(dashboardService.getBooksReturned(parentId));
+		 pdd.setRecentBookRequests(dashboardService.getRecentRequests(parentId, 5));
+		 pdd.setBooksCurrentlyIssuedList(dashboardService.getIssuedBooks(parentId));
+		 pdd.setOverdueBooks(dashboardService.getOverdueBooks(parentId));
+		 pdd.setReturnedBooksHistory(dashboardService.getReturnedBooks(parentId));
+		 pdd.setUpcomingReturns(dashboardService.getUpcomingDue(parentId, 7));
 		
 		 List<Book> recommendedBooksList = bookService.recommendBooksForParent(userId);
 		 request.setAttribute("recommendedBooks", recommendedBooksList);

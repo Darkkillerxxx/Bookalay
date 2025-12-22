@@ -109,7 +109,7 @@ style>.reco-card {
 				</c:when>
 
 				<c:otherwise>
-					<c:forEach items="${recommendedBooks}" var="book" begin="0" end="3">
+					<c:forEach items="${recommendedBooks}" var="book" begin="0" end="7">
 						<div class="col-lg-2 col-md-6 mb-3">
 
 							<a href="DashboardController?action=viewBooksDetails&bookId=${book.bookId}"
