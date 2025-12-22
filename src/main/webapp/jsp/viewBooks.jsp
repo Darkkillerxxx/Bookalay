@@ -18,6 +18,9 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 	rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <style>
 body {
 	background-color: #f8f9fc;
@@ -91,7 +94,7 @@ body {
 		      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 		    </div>
 		    <div class="toast-body">
-		      <c:out value="${transaction.meassage}" />
+		      <c:out value="${transaction.message}" />
 		    </div>
 		  </div>
 		</div>

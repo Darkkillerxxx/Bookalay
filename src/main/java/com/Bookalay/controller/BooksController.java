@@ -13,8 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.Bookalay.daoImpl.BookDaoImpl;
 import com.Bookalay.pojo.Book;
 import com.Bookalay.pojo.Transaction;
+import com.Bookalay.pojo.User;
 import com.Bookalay.service.BookService;
 import com.Bookalay.serviceImpl.BookServiceImpl;
+import com.Bookalay.util.UserUtil;
 
 /**
  * Servlet implementation class BooksController
@@ -37,14 +39,25 @@ public class BooksController extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		User user = UserUtil.fetchLoggedInUser(request,response);
 		String action = request.getParameter("action").trim();
 
 		switch (action) {
 		case "manageBooks":
-			fetchAllBooks(request,response);
+			fetchAllBooks(request,response,user);
 
 			break;
 		case "createEditBooks":
+		    String bookIdToEdit = request.getParameter("bookId");
+		    
+		    if(bookIdToEdit != null) {
+		    	BookDaoImpl bookDao = new BookDaoImpl();
+		        Book book = bookDao.getBookById(Integer.valueOf(bookIdToEdit));
+		        System.out.println(book);
+		        request.setAttribute("isEdit", true);
+		        request.setAttribute("book", book);
+		    }
+		    
 			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
 			dispatcher.forward(request, response);
 			break;
@@ -53,6 +66,10 @@ public class BooksController extends HttpServlet {
 			saveBook(request, response);
 			break;
 		
+		case "editBook":
+			editBook(request,response);
+			break;
+			
 		case "editBookForm":
 			System.out.print(57);
 		    String bookIdStr = request.getParameter("bookId");
@@ -71,7 +88,7 @@ public class BooksController extends HttpServlet {
 
 		
 		case "toggleAvailability":
-			toggleAvailability(request, response);
+			toggleAvailability(request, response,user);
 			break;
 			
 		default:
@@ -90,10 +107,8 @@ public class BooksController extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	private void fetchAllBooks(HttpServletRequest request, HttpServletResponse response) {
+	private void fetchAllBooks(HttpServletRequest request, HttpServletResponse response,User user) {
 		try {
-			com.Bookalay.pojo.User user = (com.Bookalay.pojo.User) request.getSession().getAttribute("user");
-			System.out.print("48" + user.getUserType());
 			boolean isAdminUserLoggedIn = false;
 			if ("admin".equals(user.getUserType())) {
 				request.getSession().setAttribute("isAdmin", true);
@@ -156,7 +171,56 @@ public class BooksController extends HttpServlet {
 			request.setAttribute("transaction", result);
 			
 			if(result.isSuccess()) {
-			    response.sendRedirect("BooksController?action=manageBooks");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("BooksController?action=manageBooks");
+				dispatcher.forward(request, response);
+			}else {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
+				dispatcher.forward(request, response);
+			}
+		
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
+			dispatcher.forward(request, response);
+		}
+	}
+	
+	private void editBook(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		try {
+			Book book = new Book();
+
+			book.setTitle(request.getParameter("title"));
+			book.setAuthor(request.getParameter("author"));
+			book.setBookId(Integer.valueOf(request.getParameter("bookId")));
+
+			String[] interests = request.getParameterValues("interest");
+			String[] genres = request.getParameterValues("genre");
+
+			String interestString = (interests != null) ? String.join(",", interests) : "";
+			String genreString = (genres != null) ? String.join(",", genres) : "";
+			book.setInterest(interestString);
+			book.setGenre(genreString);
+			book.setReadingDifficulty(request.getParameter("reading_difficulty"));
+			book.setSeriesName(request.getParameter("series_name"));
+			book.setPageCount(Integer.parseInt(request.getParameter("page_count")));
+			book.setSummary(request.getParameter("summary"));
+			book.setCoverArt(request.getParameter("cover_art"));
+			book.setTotalCopies(Integer.parseInt(request.getParameter("total_copies")));
+			book.setAvailableCopies(Integer.parseInt(request.getParameter("available_copies")));
+			book.setAvailable(true);
+
+			BookService dao = new BookServiceImpl();
+			Transaction result = dao.editBook(book);
+			
+			request.setAttribute("showToast", true);
+			request.setAttribute("transaction", result);
+			
+			if(result.isSuccess()) {
+				RequestDispatcher dispatcher = request.getRequestDispatcher("BooksController?action=manageBooks");
+				dispatcher.forward(request, response);
 			}else {
 				RequestDispatcher dispatcher = request.getRequestDispatcher("jsp/createEditBook.jsp");
 				dispatcher.forward(request, response);
@@ -171,7 +235,7 @@ public class BooksController extends HttpServlet {
 	}
 	
 	// ================ TOGGLE AVAILABILITY =======================
-		private void toggleAvailability(HttpServletRequest request, HttpServletResponse response)
+		private void toggleAvailability(HttpServletRequest request, HttpServletResponse response,User user)
 				throws ServletException, IOException {
 
 			try {
@@ -182,7 +246,7 @@ public class BooksController extends HttpServlet {
 
 				request.setAttribute("message", result.getMessage());
 				
-				fetchAllBooks(request,response);
+				fetchAllBooks(request,response,user);
 
 			} catch (Exception e) {
 				e.printStackTrace();

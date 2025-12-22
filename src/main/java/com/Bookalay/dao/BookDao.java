@@ -12,4 +12,5 @@ public interface BookDao {
 	public Transaction createBook(Book book);
 	public Transaction toggleBookAvailability(int bookId);
 	public List<Book> recommendBooksForParent(int parentId);
+	public Transaction editBook(Book book);
 }

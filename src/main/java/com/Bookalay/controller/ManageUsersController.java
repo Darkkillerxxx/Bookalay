@@ -12,10 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.Bookalay.pojo.ParentUser;
+import com.Bookalay.pojo.Transaction;
 import com.Bookalay.pojo.User;
 import com.Bookalay.pojo.UserProfile;
 import com.Bookalay.service.UserService;
 import com.Bookalay.serviceImpl.UserServiceImpl;
+import com.Bookalay.util.UserUtil;
 
 /**
  * Servlet implementation class ManageUsers
@@ -42,17 +44,11 @@ public class ManageUsersController extends HttpServlet {
 		String parentId;
 		UserService userService = new UserServiceImpl();
 		ParentUser parentUser = new ParentUser();
-		
-		HttpSession session = request.getSession(false);
-		User loggedInUser = null;
-
-		if (session != null) {
-			loggedInUser = (User) session.getAttribute("user");
-		}
+		User loggedInUser = UserUtil.fetchLoggedInUser(request, response);
 
 		// 🔒 If not logged in → send to login page
 		if (loggedInUser == null) {
-			response.sendRedirect("jsp/login.jsp");
+			response.sendRedirect("/");
 			return;
 		}
 
@@ -61,17 +57,72 @@ public class ManageUsersController extends HttpServlet {
 		switch (action) {
 		case "viewProfile":
 
-			// get parentId from session user
-			parentId = String.valueOf(loggedInUser.getUserId());
+		    parentId = String.valueOf(loggedInUser.getUserId());
 
-			UserProfile profile = userService.fetchUserProfile(parentId);
+		    UserProfile profile = userService.fetchUserProfile(parentId);
+		    request.setAttribute("profile", profile);
 
-			request.setAttribute("profile", profile);
+		    RequestDispatcher rd = request.getRequestDispatcher("jsp/viewProfile.jsp");
+		    rd.forward(request, response);
+		    break;
+		    
+		case "updateProfile":
 
-			RequestDispatcher rd = request.getRequestDispatcher("jsp/viewProfile.jsp");
-			rd.forward(request, response);
-			break;
+		    int userId = Integer.parseInt(request.getParameter("userId"));
+		    int parentIdInt = Integer.parseInt(request.getParameter("parentId"));
+		    int childId = Integer.parseInt(request.getParameter("childId"));
+
+		    // USER
+		    String username = request.getParameter("username");
+
+		    // PARENT
+		    String parentName = request.getParameter("parentName");
+		    String email = request.getParameter("email");
+		    String phone = request.getParameter("phone");
+
+		    // CHILD
+		    String childName = request.getParameter("childName");
+		    int age = Integer.parseInt(request.getParameter("age"));
+		    String gender = request.getParameter("gender");
+
+		    String interests = request.getParameterValues("interests") != null
+		            ? String.join(",", request.getParameterValues("interests"))
+		            : "";
+
+		    String genres = request.getParameterValues("genres") != null
+		            ? String.join(",", request.getParameterValues("genres"))
+		            : "";
+
+		    String readingLevel = request.getParameter("readingLevel");
+		    String readingFrequency = request.getParameter("readingFrequency");
+		    String notes = request.getParameter("notes");
+
+		    Transaction transaction = userService.updateProfile(
+		            userId,
+		            parentIdInt,
+		            childId,
+		            username,
+		            parentName,
+		            email,
+		            phone,
+		            childName,
+		            age,
+		            gender,
+		            interests,
+		            readingLevel,
+		            genres,
+		            readingFrequency,
+		            notes
+		    );
+
+			request.setAttribute("transaction", transaction);
+			request.setAttribute("showToast",true);
 			
+			RequestDispatcher updateProfileDispatcher = request.getRequestDispatcher("ManageUsersController?action=viewProfile");
+			updateProfileDispatcher.forward(request, response);
+
+		    break;
+
 		case "fetchAllUsers":
 			String searchText = request.getParameter("search");
 			
