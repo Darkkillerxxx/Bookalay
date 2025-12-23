@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.Bookalay.dao.DashboardDao;
+import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Request;
-import com.Bookalay.pojo.User;
 import com.Bookalay.util.DateUtil;
 import com.Bookalay.util.DbUtil;
 
@@ -140,8 +140,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setRequestDate(rs.getString("request_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setRequestDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setStatus(rs.getString("status"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
@@ -177,8 +177,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setStatus(rs.getString("status"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
@@ -214,8 +214,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setStatus(rs.getString("status"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
@@ -253,8 +253,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setReturnedDate(rs.getString("returned_date"));
+                    r.setReturnedDate(DateUtil.formatWithSuffix(rs.getString("returned_date")));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
                     list.add(r);
@@ -290,8 +290,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
                     list.add(r);
@@ -363,11 +363,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
     @Override
     public int getNewBooksRequestedToday() {
-        String sql = """
-            SELECT COUNT(*)
-            FROM requests
-            WHERE DATE(request_date) = CURDATE()
-        """;
+        String sql = "SELECT COUNT(*) FROM requests";
         return countQuery(sql);
     }
     
@@ -406,11 +402,17 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public List<Request> getTodayReturnRequestForAdmin() {
         List<Request> list = new ArrayList<>();
-        String sql ="SELECT r.request_id, r.issued_date, r.due_date, b.book_id, b.title " +
-                "FROM requests r " +
-                "JOIN book b ON r.book_id = b.book_id " +
-                "WHERE r.status = 'issued' AND r.due_date = NOW()" +
-                "ORDER BY r.due_date ASC";
+        String sql =
+        	    "SELECT r.request_id, r.issued_date, r.due_date, r.status, " +
+        	    "b.book_id, b.title, p.parent_name " +
+        	    "FROM requests r " +
+        	    "JOIN book b ON r.book_id = b.book_id " +
+        	    "JOIN parent p ON r.parent_id = p.parent_id " +
+        	    "WHERE r.status = 'issued' " +
+        	    "AND r.due_date >= CURDATE() " +
+        	    "AND r.due_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY) " +
+        	    "ORDER BY r.due_date ASC";
+
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -419,8 +421,9 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setParentName(rs.getString("parent_name"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));
                     list.add(r);
@@ -470,9 +473,9 @@ public class DashboardDaoImpl implements DashboardDao {
     }
     
     @Override
-    public List<User> getUsersForApprovalForAdmin() {
-        List<Request> list = new ArrayList<>();
-        String sql ="SELECT * FROM User where isApproved = false LIMIT 5";
+    public List<ParentUser> getUsersForApprovalForAdmin() {
+        List<ParentUser> list = new ArrayList<>();
+        String sql ="SELECT u.*, p.* FROM user u INNER JOIN parent p ON u.user_id = p.user_id WHERE u.isApproved = false";
 
 
         try (Connection conn = DbUtil.getConnection();
@@ -480,31 +483,35 @@ public class DashboardDaoImpl implements DashboardDao {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Request r = new Request();
-                    r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
-                    r.setBookId(rs.getInt("book_id"));
-                    r.setBookName(rs.getString("title"));
-                    list.add(r);
+                	ParentUser parentUser = new ParentUser();
+                	parentUser.setParentName(rs.getString("parent_name"));
+                	parentUser.setEmail(rs.getString("email"));
+                    list.add(parentUser);
                 }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return list;
     }
     
     @Override
     public List<Request> getOverdueBooksAdmin() {
         List<Request> list = new ArrayList<>();
         String sql =
-                "SELECT r.request_id, r.issued_date, r.due_date, r.status, b.book_id, b.title, TIMESTAMPDIFF(DAY, r.due_date, NOW()) AS days_overdue " +
-                "FROM requests r " +
-                "JOIN book b ON r.book_id = b.book_id " +
-                "WHERE r.status = 'issued' AND r.due_date < NOW() AND r.returned_date IS NULL " +
-                "ORDER BY days_overdue DESC LIMIT 5";
+        	    "SELECT r.request_id, r.issued_date, r.due_date, r.status, " +
+        	    "b.book_id, b.title, p.parent_name, " +
+        	    "TIMESTAMPDIFF(DAY, r.due_date, NOW()) AS days_overdue " +
+        	    "FROM requests r " +
+        	    "JOIN book b ON r.book_id = b.book_id " +
+        	    "JOIN parent p ON r.parent_id = p.parent_id " +
+        	    "WHERE r.status = 'issued' " +
+        	    "AND r.due_date < NOW() " +
+        	    "AND r.returned_date IS NULL " +
+        	    "ORDER BY days_overdue DESC " +
+        	    "LIMIT 5";
+
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -513,8 +520,9 @@ public class DashboardDaoImpl implements DashboardDao {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setIssuedDate(rs.getString("issued_date"));
-                    r.setDueDate(rs.getString("due_date"));
+                    r.setParentName(rs.getString("parent_name"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
                     r.setStatus(rs.getString("status"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setBookName(rs.getString("title"));

@@ -133,10 +133,6 @@
                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
             </button>
 
-            <div class="text-center mt-3">
-                <a href="#" class="forgot-link">Forgot your password?</a>
-            </div>
-
             <div class="text-center mt-3 text-muted">
                 Don't have an account? 
                 <a href="RegisterController?action=registerNewUser" class="forgot-link">Sign Up</a>

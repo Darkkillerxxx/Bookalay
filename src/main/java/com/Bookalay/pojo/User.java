@@ -5,6 +5,7 @@ public class User {
     private String username;
     private String passwordHash;
     private String userType;
+    private String email;
     private String lastLogin;     // Use LocalDateTime if using Java 8+
     private boolean isActive;
     private String createdDate;   // Use LocalDateTime if using Java 8+
@@ -50,5 +51,11 @@ public class User {
 	}
 	public void setCreatedDate(String createdDate) {
 		this.createdDate = createdDate;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

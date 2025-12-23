@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.Bookalay.dao.DashboardDao;
 import com.Bookalay.daoImpl.DashboardDaoImpl;
+import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Request;
-import com.Bookalay.pojo.User;
 import com.Bookalay.service.DashboardService;
 
 public class DashboardServiceImpl implements DashboardService {
@@ -134,7 +134,7 @@ public class DashboardServiceImpl implements DashboardService {
 	}
 
 	@Override
-	public List<User> getUsersForApprovalForAdmin() {
+	public List<ParentUser> getUsersForApprovalForAdmin() {
 		return dashboardDao.getUsersForApprovalForAdmin();
 	}
 

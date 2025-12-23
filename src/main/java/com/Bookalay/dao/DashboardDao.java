@@ -3,8 +3,8 @@ package com.Bookalay.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Request;
-import com.Bookalay.pojo.User;
 
 public interface DashboardDao {
 
@@ -56,7 +56,7 @@ public interface DashboardDao {
 
 	List<Request> getRecentBookIssuesForAdmin();
 
-	List<User> getUsersForApprovalForAdmin();
+	List<ParentUser> getUsersForApprovalForAdmin();
 
 	List<Request> getOverdueBooksAdmin();
 }

@@ -238,8 +238,8 @@
 			            <label class="form-label">Reading Frequency</label>
 			            <select class="form-select mb-3" name="readingFrequency">
 			                <option value="">Select Reading frequency</option>
-			                <option>4–6 times a week</option>
-			                <option>2–3 times a week</option>
+			                <option>4 to 6 times a week</option>
+			                <option>2 to 3 times a week</option>
 			                <option>Once a week</option>
 			                <option>Once or twice a month</option>
 			                <option>Rarely</option>    

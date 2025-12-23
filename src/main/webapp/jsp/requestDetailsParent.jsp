@@ -58,7 +58,7 @@ body {
 		</div>
 	</div>
 
-	<%@ include file="adminDashboardCommon.jsp"%>
+	<%@ include file="parentDashboardCommon.jsp"%>
 
 	<div class="container-fluid mt-4">
 

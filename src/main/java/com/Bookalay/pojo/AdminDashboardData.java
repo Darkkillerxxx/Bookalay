@@ -17,7 +17,7 @@ public class AdminDashboardData {
     private List<Request> upcomingReturns;
     private List<Request> todayReturns;
     private List<Request> recentIssues;
-    private List<User> usersForApprovals;
+    private List<ParentUser> usersForApprovals;
     private List<Request> booksOverdue;
 
     // ===== Getters & Setters =====
@@ -118,11 +118,11 @@ public class AdminDashboardData {
         this.booksOverdue = booksOverdue;
     }
     
-    public List<User> getUsersForApproval() {
+    public List<ParentUser> getUsersForApproval() {
         return usersForApprovals;
     }
 
-    public void setUsersForApproval(List<User> usersForApprovals) {
+    public void setUsersForApproval(List<ParentUser> usersForApprovals) {
         this.usersForApprovals = usersForApprovals;
     }
 
