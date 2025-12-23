@@ -71,7 +71,7 @@ public class RegisterController extends HttpServlet {
 				Transaction transaction = userService.insertUser(username, password, childName, age, gender, interests, parentName, phone, email, readingLevel, genres, readingFrequency, notes);
 				request.setAttribute("showToast", true);
 				request.setAttribute("toastMessage", transaction.getMessage());
-				request.getRequestDispatcher("/").forward(request, response);
+				request.getRequestDispatcher("jsp/register.jsp").forward(request, response);
 				
 				System.out.print(transaction.getMessage());
 		    }

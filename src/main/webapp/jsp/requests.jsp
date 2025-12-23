@@ -86,7 +86,7 @@ body {
 												<td>${loop.index + 1}</td>
 												<td>${r.parentName}</td>
 												<td>${r.bookName}</td>
-												<td>${fn:substring(r.requestDate, 0, 10)}</td>
+												<td>${r.requestDate}</td>
 												<td><span
 													class="badge 
 					                                    ${r.status == 'pending' ? 'bg-warning' : 

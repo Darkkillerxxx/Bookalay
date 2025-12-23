@@ -3,8 +3,8 @@ package com.Bookalay.service;
 import java.util.List;
 import java.util.Map;
 
+import com.Bookalay.pojo.ParentUser;
 import com.Bookalay.pojo.Request;
-import com.Bookalay.pojo.User;
 
 public interface DashboardService {
 	 // Aggregate metric methods
@@ -55,7 +55,7 @@ public interface DashboardService {
 
 	List<Request> getRecentBookIssuesForAdmin();
 
-	List<User> getUsersForApprovalForAdmin();
+	List<ParentUser> getUsersForApprovalForAdmin();
 	
 	List<Request> getOverdueBooksAdmin();
 

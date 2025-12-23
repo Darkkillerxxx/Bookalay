@@ -486,8 +486,8 @@ public class RequestDaoImpl implements RequestDao {
             ------------------------------------- */
             String insertSql = """
                 INSERT INTO requests
-                    (parent_id, child_id, book_id, due_date, notes)
-                VALUES (?, ?, ?, ?, ?);
+                    (parent_id, child_id, book_id,request_date ,due_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?);
             """;
 
             ps = conn.prepareStatement(insertSql);
@@ -495,7 +495,8 @@ public class RequestDaoImpl implements RequestDao {
             ps.setInt(2, childId);
             ps.setInt(3, Integer.parseInt(bookId));
             ps.setTimestamp(4, new java.sql.Timestamp(requestDate.getTime()));
-            ps.setString(5, additionalNotes);
+            ps.setTimestamp(5, new java.sql.Timestamp(requestDate.getTime() + (14L * 24 * 60 * 60 * 1000)));
+            ps.setString(6, additionalNotes);
 
             int rows = ps.executeUpdate();
 

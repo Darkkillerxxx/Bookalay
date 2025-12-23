@@ -196,7 +196,6 @@ style>.reco-card {
 								<th>Book</th>
 								<th>Issue Date</th>
 								<th>Due Date</th>
-								<th>Status</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -216,7 +215,6 @@ style>.reco-card {
 											<td>${b.bookName}</td>
 											<td>${b.issuedDate}</td>
 											<td>${b.dueDate}</td>
-											<td>${b.status}</td>
 										</tr>
 									</c:forEach>
 								</c:otherwise>
@@ -324,7 +322,6 @@ style>.reco-card {
 								<th>#</th>
 								<th>Book</th>
 								<th>Due Date</th>
-								<th>Status</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -341,7 +338,6 @@ style>.reco-card {
 											<td>${i.count}</td>
 											<td>${u.bookName}</td>
 											<td>${u.dueDate}</td>
-											<td>${u.status}</td>
 										</tr>
 									</c:forEach>
 								</c:otherwise>

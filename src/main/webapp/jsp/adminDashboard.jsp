@@ -165,7 +165,7 @@ body {
 											<tr>
 												<td>${i.count}</td>
 												<td>${r.parentName}</td>
-												<td>${r.parentEmail}</td>
+												<td>${r.email}</td>
 												<td><button class="btn btn-success btn-sm">View
 														Details</button></td>
 											</tr>
@@ -245,27 +245,24 @@ body {
 										<th>Member Name</th>
 										<th>Book Title</th>
 										<th>Due Date</th>
-										<th>Status</th>
 									</tr>
 								</thead>
 
 								<tbody>
 									<c:choose>
-										<c:when test="${empty dashboardMetrics.todayReturns}">
+										<c:when test="${empty adminDashboardMetrics.todayReturns}">
 											<tr>
 												<td colspan="5" class="text-center">No recent requests</td>
 											</tr>
 										</c:when>
 										<c:otherwise>
-											<c:forEach items="${dashboardMetrics.todayReturns}" var="r"
+											<c:forEach items="${adminDashboardMetrics.todayReturns}" var="r"
 												varStatus="i">
 												<tr>
 													<td>${i.count}</td>
 													<td>${r.parentName}</td>
 													<td>${r.bookName}</td>
 													<td>${r.dueDate}</td>
-													<td><span class="badge bg-secondary">${r.status}</span>
-													</td>
 												</tr>
 											</c:forEach>
 										</c:otherwise>

@@ -9,11 +9,16 @@
 <meta charset="UTF-8">
 <title>Update Profile</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+	rel="stylesheet">
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 
 <style>
@@ -30,12 +35,12 @@ body {
 </head>
 
 <script type="text/javascript">
-	document.addEventListener("DOMContentLoaded", function () {
-	    <% if (request.getAttribute("showToast") != null) { %>
-	        var toastEl = document.getElementById('liveToast');
-	        var toast = new bootstrap.Toast(toastEl);
-	        toast.show();
-	    <% } %>
+	document.addEventListener("DOMContentLoaded", function() {
+<%if (request.getAttribute("showToast") != null) {%>
+	var toastEl = document.getElementById('liveToast');
+		var toast = new bootstrap.Toast(toastEl);
+		toast.show();
+<%}%>
 	});
 </script>
 
@@ -190,12 +195,34 @@ body {
 								</c:forEach>
 							</div>
 
-							<label class="form-label mt-3">Reading Frequency</label> <input
-								type="text" class="form-control mb-3" name="readingFrequency"
-								value="${profile.child.readingFrequency}"> <label
-								class="form-label">Notes</label>
-							<textarea class="form-control" rows="3" name="notes">${profile.child.notes}</textarea>
+							<label class="form-label mt-3">Reading Frequency</label> <select
+								class="form-select mb-3" name="readingFrequency">
+								<option value="">Select Reading frequency</option>
+
+								<option value="4 to 6 times a week"
+									${profile.child.readingFrequency == '4 to 6 times a week' ? 'selected' : ''}>
+									4 to 6 times a week</option>
+
+								<option value="2 to 3 times a week"
+									${profile.child.readingFrequency == '2 to 3 times a week' ? 'selected' : ''}>
+									2 to 3 times a week</option>
+
+								<option value="Once a week"
+									${profile.child.readingFrequency == 'Once a week' ? 'selected' : ''}>
+									Once a week</option>
+
+								<option value="Once or twice a month"
+									${profile.child.readingFrequency == 'Once or twice a month' ? 'selected' : ''}>
+									Once or twice a month</option>
+
+								<option value="Rarely"
+									${profile.child.readingFrequency == 'Rarely' ? 'selected' : ''}>
+									Rarely</option>
+							</select> 
 							
+							<label class="form-label">Notes</label>
+							<textarea class="form-control" rows="3" name="notes">${profile.child.notes}</textarea>
+
 							<div class="mt-4 d-flex justify-content-end">
 								<button class="btn btn-primary w-25">Update Profile</button>
 							</div>
@@ -203,7 +230,7 @@ body {
 					</div>
 				</div>
 
-				
+
 
 			</div>
 		</div>

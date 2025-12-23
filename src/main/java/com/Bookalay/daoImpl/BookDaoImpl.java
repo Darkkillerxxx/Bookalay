@@ -429,7 +429,7 @@ public class BookDaoImpl implements BookDao {
 	            "   SELECT r.book_id " +
 	            "   FROM requests r " +
 	            "   WHERE r.parent_id = ? " +
-	            "   AND r.status = 'issued' " +
+	            "   AND (r.status = 'issued' OR r.status = 'returned') " +
 	            " )"
 	        );
 
