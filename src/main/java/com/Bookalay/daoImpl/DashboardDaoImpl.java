@@ -121,20 +121,23 @@ public class DashboardDaoImpl implements DashboardDao {
      * Recent requests (default limit)
      */
     @Override
-    public List<Request> getRecentRequests(int parentId, int limit) {
+    public List<Request> getRecentRequests(int parentId, boolean applyLimit) {
         List<Request> list = new ArrayList<>();
         String sql =
                 "SELECT r.request_id, r.request_date, r.due_date, r.status, b.book_id, b.title " +
                 "FROM requests r " +
                 "JOIN book b ON r.book_id = b.book_id " +
                 "WHERE r.parent_id = ? " +
-                "ORDER BY r.request_date DESC " +
-                "LIMIT ?";
+                "ORDER BY r.request_date DESC";
+                
+        if(applyLimit) {
+        	sql = sql + "LIMIT 3";
+        }
+                
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, parentId);
-            ps.setInt(2, limit);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -159,14 +162,19 @@ public class DashboardDaoImpl implements DashboardDao {
      * Books currently issued for this parent
      */
     @Override
-    public List<Request> getIssuedBooks(int parentId) {
+    public List<Request> getIssuedBooks(int parentId,boolean applyLimit) {
         List<Request> list = new ArrayList<>();
+        
         String sql =
                 "SELECT r.request_id, r.issued_date, r.due_date, r.status, b.book_id, b.title " +
                 "FROM requests r " +
                 "JOIN book b ON r.book_id = b.book_id " +
                 "WHERE r.parent_id = ? AND r.status = 'issued' " +
                 "ORDER BY r.issued_date DESC";
+        
+        if(applyLimit) {
+        	sql = sql + " LIMIT 3";
+        }
 
         try (Connection conn = DbUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -475,7 +483,7 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public List<ParentUser> getUsersForApprovalForAdmin() {
         List<ParentUser> list = new ArrayList<>();
-        String sql ="SELECT u.*, p.* FROM user u INNER JOIN parent p ON u.user_id = p.user_id WHERE u.isApproved = false";
+        String sql ="SELECT u.*, p.* FROM user u INNER JOIN parent p ON u.user_id = p.user_id WHERE (u.isApproved = 0 AND u.isRejected = 0) LIMIT 3";
 
 
         try (Connection conn = DbUtil.getConnection();
@@ -510,7 +518,7 @@ public class DashboardDaoImpl implements DashboardDao {
         	    "AND r.due_date < NOW() " +
         	    "AND r.returned_date IS NULL " +
         	    "ORDER BY days_overdue DESC " +
-        	    "LIMIT 5";
+        	    "LIMIT 3";
 
 
         try (Connection conn = DbUtil.getConnection();
@@ -536,5 +544,46 @@ public class DashboardDaoImpl implements DashboardDao {
             e.printStackTrace();
         }
         return list;
-    }   
+    }
+    
+    @Override
+    public List<Request> getReturnedLateRequests(int parentId) {
+        List<Request> list = new ArrayList<>();
+
+        String sql =
+            "SELECT r.request_id, r.issued_date, r.due_date, r.returned_date, " +
+            "b.book_id, b.title, " +
+            "TIMESTAMPDIFF(DAY, r.due_date, r.returned_date) AS days_late " +
+            "FROM requests r " +
+            "JOIN book b ON r.book_id = b.book_id " +
+            "WHERE r.parent_id = ? " +
+            "AND r.status = 'returned' " +
+            "AND r.returned_date > r.due_date " +
+            "ORDER BY days_late DESC";
+
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, parentId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Request r = new Request();
+                    r.setRequestId(rs.getInt("request_id"));
+                    r.setIssuedDate(DateUtil.formatWithSuffix(rs.getString("issued_date")));
+                    r.setDueDate(DateUtil.formatWithSuffix(rs.getString("due_date")));
+                    r.setReturnedDate(DateUtil.formatWithSuffix(rs.getString("returned_date")));
+                    r.setBookId(rs.getInt("book_id"));
+                    r.setBookName(rs.getString("title"));
+                    r.setNotes("Returned " + rs.getInt("days_late") + " days late");
+                    list.add(r);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }

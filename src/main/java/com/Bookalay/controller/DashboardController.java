@@ -97,8 +97,8 @@ public class DashboardController extends HttpServlet {
 				request.setAttribute("upcommingDueRequest",upcommingDueRequest);
 
 				// 2) Tables
-				List<Request> recentRequests = dashboardService.getRecentRequests(parentId, 5);
-				List<Request> issuedBooks = dashboardService.getIssuedBooks(parentId);
+				List<Request> recentRequests = dashboardService.getRecentRequests(parentId, true);
+				List<Request> issuedBooks = dashboardService.getIssuedBooks(parentId, true);
 				List<Request> overdueBooks = dashboardService.getOverdueBooks(parentId);
 				List<Request> returnedBooks = dashboardService.getReturnedBooks(parentId);
 				List<Request> upcomingDue = dashboardService.getUpcomingDue(parentId, 7);

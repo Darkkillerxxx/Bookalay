@@ -17,6 +17,7 @@ public class AdminDashboardData {
     private List<Request> upcomingReturns;
     private List<Request> todayReturns;
     private List<Request> recentIssues;
+    private List<Request> lateReturns;
     private List<ParentUser> usersForApprovals;
     private List<Request> booksOverdue;
 
@@ -125,5 +126,13 @@ public class AdminDashboardData {
     public void setUsersForApproval(List<ParentUser> usersForApprovals) {
         this.usersForApprovals = usersForApprovals;
     }
+
+	public List<Request> getLateReturns() {
+		return lateReturns;
+	}
+
+	public void setLateReturns(List<Request> lateReturns) {
+		this.lateReturns = lateReturns;
+	}
 
 }

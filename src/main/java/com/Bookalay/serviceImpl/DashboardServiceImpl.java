@@ -54,13 +54,13 @@ public class DashboardServiceImpl implements DashboardService {
     // Table / list methods
 
     @Override
-    public List<Request> getRecentRequests(int parentId, int limit) {
-        return dashboardDao.getRecentRequests(parentId, limit);
+    public List<Request> getRecentRequests(int parentId, boolean applyLimit) {
+        return dashboardDao.getRecentRequests(parentId, applyLimit);
     }
 
     @Override
-    public List<Request> getIssuedBooks(int parentId) {
-        return dashboardDao.getIssuedBooks(parentId);
+    public List<Request> getIssuedBooks(int parentId,boolean applyLimit) {
+        return dashboardDao.getIssuedBooks(parentId,applyLimit);
     }
 
     @Override
@@ -141,5 +141,11 @@ public class DashboardServiceImpl implements DashboardService {
 	@Override
 	public List<Request> getOverdueBooksAdmin() {
 		return dashboardDao.getOverdueBooksAdmin();
+	}
+
+	@Override
+	public List<Request> getReturnedLateRequests(int parentId) {
+		// TODO Auto-generated method stub
+		return dashboardDao.getReturnedLateRequests(parentId);
 	}
 }

@@ -123,8 +123,8 @@ public class AuthenticationController extends HttpServlet {
 		 pdd.setBooksCurrentlyIssued(dashboardService.getBooksCurrentlyIssued(parentId));
 		 pdd.setBooksOverdue(dashboardService.getOverdueBooksCount(parentId));
 		 pdd.setBooksReturned(dashboardService.getBooksReturned(parentId));
-		 pdd.setRecentBookRequests(dashboardService.getRecentRequests(parentId, 5));
-		 pdd.setBooksCurrentlyIssuedList(dashboardService.getIssuedBooks(parentId));
+		 pdd.setRecentBookRequests(dashboardService.getRecentRequests(parentId, true));
+		 pdd.setBooksCurrentlyIssuedList(dashboardService.getIssuedBooks(parentId, true));
 		 pdd.setOverdueBooks(dashboardService.getOverdueBooks(parentId));
 		 pdd.setReturnedBooksHistory(dashboardService.getReturnedBooks(parentId));
 		 pdd.setUpcomingReturns(dashboardService.getUpcomingDue(parentId, 7));

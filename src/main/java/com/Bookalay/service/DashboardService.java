@@ -23,9 +23,9 @@ public interface DashboardService {
     Map<String, Integer> getCountsByStatus(int parentId);
 
     // Table / list methods
-    List<Request> getRecentRequests(int parentId, int limit);
+    List<Request> getRecentRequests(int parentId, boolean applyLimit);
 
-    List<Request> getIssuedBooks(int parentId);
+    List<Request> getIssuedBooks(int parentId, boolean applyLimit);
 
     List<Request> getOverdueBooks(int parentId);
 
@@ -58,5 +58,9 @@ public interface DashboardService {
 	List<ParentUser> getUsersForApprovalForAdmin();
 	
 	List<Request> getOverdueBooksAdmin();
+	
+	List<Request> getReturnedLateRequests(int parentId);
+
+
 
 }

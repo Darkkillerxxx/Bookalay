@@ -42,7 +42,7 @@ body {
 		<div class="row g-4">
 			<!-- Left Card -->
 			<div class="col-lg-6">
-				<div class="card p-4 h-100">
+				<div class="card p-4">
 					<h5 class="fw-bold">Website Audience Metrics</h5>
 					<p class="text-muted small">Audience to which the users
 						belonged while on the current date range.</p>
@@ -60,13 +60,13 @@ body {
 							<h4 class="fw-bold">${adminDashboardMetrics.booksRead}</h4>
 							<p class="text-muted small">Books Read</p>
 						</div>
+					</div>
+
+					<div class="row text-center mb-4">
 						<div class="col">
 							<h4 class="fw-bold">${adminDashboardMetrics.usersWaitingForApproval}</h4>
 							<p class="text-muted small">Users Waiting for Approval</p>
 						</div>
-					</div>
-
-					<div class="row text-center mb-4">
 						<div class="col">
 							<h4 class="fw-bold">${adminDashboardMetrics.inactiveUsers}</h4>
 							<p class="text-muted small">In-Active Users</p>
@@ -75,6 +75,10 @@ body {
 							<h4 class="fw-bold">${adminDashboardMetrics.overdueBooks}</h4>
 							<p class="text-muted small">Overdue Books</p>
 						</div>
+
+					</div>
+
+					<div class="row text-center mb-4">
 						<div class="col">
 							<h4 class="fw-bold">${adminDashboardMetrics.totalBooksAvailable}</h4>
 							<p class="text-muted small">Total Books Available</p>
@@ -84,17 +88,15 @@ body {
 							<p class="text-muted small">New Books Requested</p>
 						</div>
 					</div>
-
-					<div class="chart-placeholder w-100"></div>
 				</div>
 			</div>
 
 			<!-- Right Side -->
 			<div class="col-lg-6">
 				<!-- Recent Book Issues -->
-				<div class="card p-3">
-					<div class="card-header bg-white">
-						<h5 class="mb-0">Recent Book Issues</h5>
+				<div class="card">
+					<div class="card-header bg-info">
+						<h5 class="mb-0 text-white">Recent Book Issues</h5>
 					</div>
 
 					<div class="card-body p-0">
@@ -135,9 +137,15 @@ body {
 					</div>
 				</div>
 
-				<!-- Users Waiting Approval -->
-				<div class="card p-3 mt-3">
-					<div class="card-header bg-warning text-dark">
+			</div>
+		</div>
+
+		<!-- Middle Row -->
+		<div class="row g-4 mt-3">
+			<div class="col-lg-6">
+								<!-- Users Waiting Approval -->
+				<div class="card mt-3">
+					<div class="card-header bg-warning text-white">
 						<h5 class="mb-0">Users Waiting for Approval</h5>
 					</div>
 
@@ -176,16 +184,57 @@ body {
 						</table>
 					</div>
 				</div>
-
 			</div>
-		</div>
-
-		<!-- Middle Row -->
-		<div class="row g-4 mt-3">
-
-			<!-- Overdue Books -->
+			
+			<!-- Today's Return List -->
 			<div class="col-lg-6">
-				<div class="card p-3 mt-3">
+				<div class="card mt-3 shadow-sm">
+					<div class="card-header bg-primary text-white">
+						<h5 class="mb-0">Today's Return List</h5>
+					</div>
+
+					<div class="card-body p-0">
+						<div class="table-responsive">
+							<table class="table table-striped table-bordered mb-0">
+								<thead class="table-light">
+									<tr>
+										<th>#</th>
+										<th>Member Name</th>
+										<th>Book Title</th>
+										<th>Due Date</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									<c:choose>
+										<c:when test="${empty adminDashboardMetrics.todayReturns}">
+											<tr>
+												<td colspan="5" class="text-center">No recent requests</td>
+											</tr>
+										</c:when>
+										<c:otherwise>
+											<c:forEach items="${adminDashboardMetrics.todayReturns}"
+												var="r" varStatus="i">
+												<tr>
+													<td>${i.count}</td>
+													<td>${r.parentName}</td>
+													<td>${r.bookName}</td>
+													<td>${r.dueDate}</td>
+												</tr>
+											</c:forEach>
+										</c:otherwise>
+									</c:choose>
+								</tbody>
+
+							</table>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<!-- Overdue Books -->
+			<div class="col-lg-12">
+				<div class="card mt-3">
 					<div class="card-header bg-danger text-white">
 						<h5 class="mb-0">Overdue Books</h5>
 					</div>
@@ -229,52 +278,7 @@ body {
 				</div>
 			</div>
 
-			<!-- Today's Return List -->
-			<div class="col-lg-6">
-				<div class="card p-3 mt-3 shadow-sm">
-					<div class="card-header bg-primary text-white">
-						<h5 class="mb-0">Today's Return List</h5>
-					</div>
-
-					<div class="card-body p-0">
-						<div class="table-responsive">
-							<table class="table table-striped table-bordered mb-0">
-								<thead class="table-light">
-									<tr>
-										<th>#</th>
-										<th>Member Name</th>
-										<th>Book Title</th>
-										<th>Due Date</th>
-									</tr>
-								</thead>
-
-								<tbody>
-									<c:choose>
-										<c:when test="${empty adminDashboardMetrics.todayReturns}">
-											<tr>
-												<td colspan="5" class="text-center">No recent requests</td>
-											</tr>
-										</c:when>
-										<c:otherwise>
-											<c:forEach items="${adminDashboardMetrics.todayReturns}" var="r"
-												varStatus="i">
-												<tr>
-													<td>${i.count}</td>
-													<td>${r.parentName}</td>
-													<td>${r.bookName}</td>
-													<td>${r.dueDate}</td>
-												</tr>
-											</c:forEach>
-										</c:otherwise>
-									</c:choose>
-								</tbody>
-
-							</table>
-						</div>
-					</div>
-
-				</div>
-			</div>
+			
 
 		</div>
 
