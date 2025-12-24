@@ -29,7 +29,7 @@ public interface UserDao {
 	public ParentUser fetchUserDetails(String userId);
 	public Transaction approveUserDetails(String parentId);
 	public List<ParentUser> fetchAllUsers(String search);
-	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive);
+	public Transaction activateOrDeactivateUser(String parentId, Boolean isActive);
 	public UserProfile fetchUserProfile(String parentId);
 	public Transaction rejectUserDetails(String parentId);
 	public Transaction updateProfile(int userId, int parentId, int childId, String username, String parentName, String email,

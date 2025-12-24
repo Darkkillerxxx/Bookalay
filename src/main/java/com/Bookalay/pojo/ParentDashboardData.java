@@ -15,6 +15,7 @@ public class ParentDashboardData {
     private List<Request> recentBookRequests;
     private List<Request> booksCurrentlyIssuedList;
     private List<Request> overdueBooks;
+    private List<Request> lateReturns;
     private List<Request> returnedBooksHistory;
     private List<Request> upcomingReturns;
 
@@ -154,4 +155,12 @@ public class ParentDashboardData {
                 ", booksReturned=" + booksReturned +
                 '}';
     }
+
+	public List<Request> getLateReturns() {
+		return lateReturns;
+	}
+
+	public void setLateReturns(List<Request> lateReturns) {
+		this.lateReturns = lateReturns;
+	}
 }

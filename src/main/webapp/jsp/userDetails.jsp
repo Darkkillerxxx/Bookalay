@@ -74,14 +74,14 @@
 		<div id="liveToast"
 			class="toast
 			         <%Boolean show = (Boolean) request.getAttribute("showToast");
-			if (show != null && show) {
-				Boolean success = (Boolean) request.getAttribute("toastSuccess");
-				if (success != null && success) {
-					out.print("toast-success");
-				} else {
-					out.print("toast-fail");
-				}
-			}%>"
+if (show != null && show) {
+	Boolean success = (Boolean) request.getAttribute("toastSuccess");
+	if (success != null && success) {
+		out.print("toast-success");
+	} else {
+		out.print("toast-fail");
+	}
+}%>"
 			role="alert" aria-live="assertive" aria-atomic="true">
 
 			<div class="toast-header">
@@ -101,97 +101,262 @@
 
 		<%@ include file="adminDashboardCommon.jsp"%>
 
-		<!-- =================== COMBINED CARD =================== -->
-		<div class="card card-custom p-4 mb-4">
+		<div class="row">
+			<div class="col-6">
+				<!-- =================== COMBINED CARD =================== -->
+				<div class="card card-custom p-4 mb-4">
 
-			<!-- ========== PARENT SECTION ========== -->
-			<h4 class="section-title">Parent Details</h4>
+					<!-- ========== PARENT SECTION ========== -->
+					<h4 class="section-title">Parent Details</h4>
 
-			<div class="row g-4 mb-4">
+					<div class="row g-4 mb-4">
 
-				<div class="col-md-4">
-					<div class="label-title">Name</div>
-					<div class="value-text">${parent.parentName}</div>
+						<div class="col-md-4">
+							<div class="label-title">Name</div>
+							<div class="value-text">${parent.parentName}</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="label-title">Email</div>
+							<div class="value-text">${parent.email}</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="label-title">Phone</div>
+							<div class="value-text">${parent.phone}</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="label-title">Registration Date</div>
+							<div class="value-text">${parent.registrationDate}</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="label-title">Status</div>
+
+							<c:choose>
+								<c:when test="${parent.isActive}">
+									<span class="badge bg-success">Active</span>
+								</c:when>
+								<c:otherwise>
+									<span class="badge bg-danger">Inactive</span>
+								</c:otherwise>
+							</c:choose>
+						</div>
+
+
+					</div>
+
+					<hr class="my-4" />
+
+					<!-- ========== CHILD SECTION ========== -->
+					<h4 class="section-title">Children Details</h4>
+
+					<c:forEach var="child" items="${parent.childUsers}">
+						<div class="row g-4 mb-4 p-3 border rounded bg-light">
+
+							<div class="col-md-4">
+								<div class="label-title">Name</div>
+								<div class="value-text">${child.childName}</div>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Age</div>
+								<div class="value-text">${child.age}</div>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Gender</div>
+								<div class="value-text">${child.gender}</div>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Reading Interests</div>
+								<span class="badge-custom"> ${child.interests} </span>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Reading Level</div>
+								<div class="value-text">${child.readingLevel}</div>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Genres</div>
+								<span class="badge-custom"> ${child.genres} </span>
+							</div>
+
+							<div class="col-md-4">
+								<div class="label-title">Reading Frequency</div>
+								<div class="value-text">${child.readingFrequency}</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="label-title">Notes</div>
+								<div class="value-text">${child.notes}</div>
+							</div>
+						</div>
+					</c:forEach>
+
 				</div>
 
-				<div class="col-md-4">
-					<div class="label-title">Email</div>
-					<div class="value-text">${parent.email}</div>
-				</div>
 
-				<div class="col-md-4">
-					<div class="label-title">Phone</div>
-					<div class="value-text">${parent.phone}</div>
-				</div>
 
-				<div class="col-md-4">
-					<div class="label-title">Registration Date</div>
-					<div class="value-text">${parent.registrationDate}</div>
+				<div class="d-flex justify-content-evenly bd-highlight">
+					<c:choose>
+						<c:when test="${parent.isActive}">
+							<a
+								href="ManageUsersController?action=activateDeactivateUser&userId=${parent.parentId}&isActive=false"
+								class="btn btn-danger px-4 py-2 bd-highlight"> De-Activate
+								User </a>
+						</c:when>
+						<c:otherwise>
+							<a
+								href="ManageUsersController?action=activateDeactivateUser&userId=${parent.parentId}&isActive=true"
+								class="btn btn-success px-4 py-2 bd-highlight"> Activate
+								User</a>
+						</c:otherwise>
+					</c:choose>
 				</div>
 
 			</div>
+			<div class="col-6">
+				<div class="card w-100 card-custom mb-4">
 
-			<hr class="my-4" />
+					<h4 class="text-white bg-warning p-2">Request History</h4>
 
-			<!-- ========== CHILD SECTION ========== -->
-			<h4 class="section-title">Children Details</h4>
+					<div class="table-responsive"
+						style="max-height: 180px; overflow-y: auto;">
+						<table class="table table-bordered table-striped mb-0">
+							<thead class="table-light sticky-top">
+								<tr>
+									<th>#</th>
+									<th>Book Name</th>
+									<th>Requested Date</th>
+									<th>Status</th>
+								</tr>
+							</thead>
 
-			<c:forEach var="child" items="${parent.childUsers}">
-				<div class="row g-4 mb-4 p-3 border rounded bg-light">
+							<tbody>
+								<c:choose>
+									<c:when test="${empty dashboardMetrics.recentBookRequests}">
+										<tr>
+											<td colspan="6" class="text-center">No requests found.</td>
+										</tr>
+									</c:when>
 
-					<div class="col-md-4">
-						<div class="label-title">Name</div>
-						<div class="value-text">${child.childName}</div>
+									<c:otherwise>
+										<c:forEach items="${dashboardMetrics.recentBookRequests}"
+											var="r" varStatus="i">
+											<tr>
+												<td>${i.count}</td>
+												<td>${r.bookName}</td>
+												<td>${r.requestDate}</td>
+												<td><span class="badge bg-secondary">${r.status}</span>
+												</td>
+											</tr>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
+							</tbody>
+						</table>
 					</div>
 
-					<div class="col-md-4">
-						<div class="label-title">Age</div>
-						<div class="value-text">${child.age}</div>
-					</div>
-
-					<div class="col-md-4">
-						<div class="label-title">Gender</div>
-						<div class="value-text">${child.gender}</div>
-					</div>
-
-					<div class="col-md-4">
-						<div class="label-title">Reading Interests</div>
-						<span class="badge-custom"> ${child.interests} </span>
-					</div>
-
-					<div class="col-md-4">
-						<div class="label-title">Reading Level</div>
-						<div class="value-text">${child.readingLevel}</div>
-					</div>
-
-					<div class="col-md-4">
-						<div class="label-title">Genres</div>
-						<span class="badge-custom"> ${child.genres} </span>
-					</div>
-
-					<div class="col-md-4">
-						<div class="label-title">Reading Frequency</div>
-						<div class="value-text">${child.readingFrequency}</div>
-					</div>
-
-					<div class="col-md-12">
-						<div class="label-title">Notes</div>
-						<div class="value-text">${child.notes}</div>
-					</div>
 				</div>
-			</c:forEach>
 
+				<div class="card w-100 card-custom mb-4">
+
+					<h4 class="text-white bg-primary p-2">Issued Book History</h4>
+
+					<div class="table-responsive"
+						style="max-height: 180px; overflow-y: auto;">
+						<table class="table table-bordered table-striped mb-0">
+							<thead class="table-light sticky-top">
+								<tr>
+									<th>#</th>
+									<th>Book</th>
+									<th>Issue Date</th>
+									<th>Due Date</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<c:choose>
+									<c:when
+										test="${empty dashboardMetrics.booksCurrentlyIssuedList}">
+										<tr>
+											<td colspan="5" class="text-center">No books currently
+												issued</td>
+										</tr>
+									</c:when>
+
+									<c:otherwise>
+										<c:forEach
+											items="${dashboardMetrics.booksCurrentlyIssuedList}" var="b"
+											varStatus="i">
+											<tr>
+												<td>${i.count}</td>
+												<td>${b.bookName}</td>
+												<td>${b.issuedDate}</td>
+												<td>${b.dueDate}</td>
+											</tr>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+
+
+				<div class="card w-100 card-custom mb-4">
+
+					<h4 class="text-white bg-danger p-2">Late Returns History</h4>
+
+					<div class="table-responsive"
+						style="max-height: 180px; overflow-y: auto;">
+						<table class="table table-bordered table-striped mb-0">
+							<thead class="table-light sticky-top">
+								<tr>
+									<th>#</th>
+									<th>Book Title</th>
+									<th>Issue Date</th>
+									<th>Due Date</th>
+									<th>Returned Date</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<c:choose>
+									<c:when test="${empty dashboardMetrics.lateReturns}">
+										<tr>
+											<td colspan="5" class="text-center">No late returns
+												found</td>
+										</tr>
+									</c:when>
+
+									<c:otherwise>
+										<c:forEach items="${dashboardMetrics.lateReturns}" var="r"
+											varStatus="i">
+											<tr>
+												<td>${i.count}</td>
+												<td>${r.bookName}</td>
+												<td>${r.issuedDate}</td>
+												<td>${r.dueDate}</td>
+												<td>${r.returnedDate}</td>
+											</tr>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+
+			</div>
 		</div>
 
-		<c:if test="${isApproved eq null}">
-			<div class="flex-row-reverse bd-highlight">
-				<a
-					href="ManageApprovalsController?action=approveUser&userId=${parent.parentId}"
-					class="btn btn-success px-4 py-2 bd-highlight"> Activate User</a> <a
-					href="ManageApprovalsController?action=rejectUser&userId=${parent.parentId}"
-					class="btn btn-danger px-4 py-2 bd-highlight"> De-Activate User </a>
-			</div>
-		</c:if>
 	</div>
 
 </body>

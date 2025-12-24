@@ -303,73 +303,64 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public List<ParentUser> activateOrDeactivateUser(String parentId, Boolean isActive) {
-	    Connection conn = null;
-	    PreparedStatement ps = null;
-	    ResultSet rs = null;
+	public Transaction activateOrDeactivateUser(String parentId, Boolean isActive) {
 
-	    List<ParentUser> updatedParents = new ArrayList<>();
+	    Connection conn = null;
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+	    Transaction transaction = new Transaction();
 
 	    try {
 	        conn = DbUtil.getConnection();
 
-	        // 1. Get user_id corresponding to parent_id
-	        String getUserQuery = "SELECT user_id FROM parent WHERE parent_id = ?";
-	        ps = conn.prepareStatement(getUserQuery);
-	        ps.setString(1, parentId);
-	        rs = ps.executeQuery();
+	        // STEP 1: Get user_id from parent
+	        String getUserSql = "SELECT user_id FROM parent WHERE parent_id = ?";
+	        stmt = conn.prepareStatement(getUserSql);
+	        stmt.setString(1, parentId);
+	        rs = stmt.executeQuery();
 
-	        Integer userId = null;
-	        if (rs.next()) {
-	            userId = rs.getInt("user_id");
+	        if (!rs.next()) {
+	            transaction.setSuccess(false);
+	            transaction.setMessage("Parent not found");
+	            return transaction;
 	        }
+
+	        int userId = rs.getInt("user_id");
 	        rs.close();
-	        ps.close();
+	        stmt.close();
 
-	        if (userId != null) {
-	            // 2. Update user table to set is_active
-	            String updateQuery = "UPDATE user SET is_active = ? WHERE user_id = ?";
-	            ps = conn.prepareStatement(updateQuery);
-	            ps.setBoolean(1, isActive);
-	            ps.setInt(2, userId);
-	            ps.executeUpdate();
-	            ps.close();
+	        // STEP 2: Activate / Deactivate user
+	        String updateSql = "UPDATE user SET is_active = ? WHERE user_id = ?";
+	        stmt = conn.prepareStatement(updateSql);
+	        stmt.setBoolean(1, isActive);
+	        stmt.setInt(2, userId);
 
-	            // 3. Optionally, return the updated parent info
-	            String selectQuery = "SELECT p.parent_id, p.user_id, p.parent_name, p.email, p.phone, "
-	                    + "p.registration_date, u.username, u.user_type, u.is_active, u.created_date "
-	                    + "FROM parent p INNER JOIN user u ON p.user_id = u.user_id WHERE p.parent_id = ?";
-	            ps = conn.prepareStatement(selectQuery);
-	            ps.setString(1, parentId);
-	            rs = ps.executeQuery();
+	        int updated = stmt.executeUpdate();
 
-	            while (rs.next()) {
-	                ParentUser parent = new ParentUser();
-	                parent.setParentId(rs.getInt("parent_id"));
-	                parent.setUserId(rs.getInt("user_id"));
-	                parent.setParentName(rs.getString("parent_name"));
-	                parent.setEmail(rs.getString("email"));
-	                parent.setPhone(rs.getString("phone"));
-	                parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
-	                parent.setActive(rs.getBoolean("is_active")); 
-	                updatedParents.add(parent);
-	            }
+	        if (updated > 0) {
+	            transaction.setSuccess(true);
+	            transaction.setMessage(
+	                isActive ? "User activated successfully" : "User deactivated successfully"
+	            );
+	        } else {
+	            transaction.setSuccess(false);
+	            transaction.setMessage("Could not update user status");
 	        }
 
-	    } catch (SQLException e) {
+	    } catch (Exception e) {
+	        transaction.setSuccess(false);
+	        transaction.setMessage("Error updating user status: " + e.getMessage());
 	        e.printStackTrace();
+
 	    } finally {
-	        try {
-	            if (rs != null) rs.close();
-	            if (ps != null) ps.close();
-	            if (conn != null) conn.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
+	        try { if (rs != null) rs.close(); } catch (Exception ignore) {}
+	        try { if (stmt != null) stmt.close(); } catch (Exception ignore) {}
+	        try { if (conn != null) conn.close(); } catch (Exception ignore) {}
 	    }
 
-	    return updatedParents;
+	    return transaction;
 	}
+
 	
 	@Override
 	public UserProfile fetchUserProfile(String parentId) {
@@ -492,6 +483,7 @@ public class UserDaoImpl implements UserDao {
 					parent.setParentName(rs.getString("parent_name"));
 					parent.setEmail(rs.getString("email"));
 					parent.setPhone(rs.getString("phone"));
+					parent.setActive(rs.getBoolean("is_active"));
 					parent.setRegistrationDate(rs.getTimestamp("registration_date").toLocalDateTime());
 
 					parent.setChildUsers(new ArrayList<>());

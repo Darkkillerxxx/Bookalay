@@ -16,6 +16,7 @@ public interface UserService {
 	public ParentUser fetchUserDetails(String parentId);
 	public Transaction approveUserDetails(String parentId);
 	public UserProfile fetchUserProfile(String parentId);
+	public Transaction activateOrDeactivateUser(String parentId, Boolean isActive);
 	public Transaction rejectUserDetails(String parentId);
 	public Transaction updateProfile(int userId, int parentId, int childId, String username, String parentName, String email,
 			String phone, String childName, int age, String gender, String interests, String readingLevel,

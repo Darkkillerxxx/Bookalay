@@ -66,4 +66,10 @@ public class UserServiceImpl implements UserService {
 		
 		return userDao.updateProfile(userId, parentId, childId, username, parentName, email, phone, childName, age, gender, interests, readingLevel, genres, readingFrequency, notes);
 	}
+
+	@Override
+	public Transaction activateOrDeactivateUser(String parentId, Boolean isActive) {
+		// TODO Auto-generated method stub
+		return userDao.activateOrDeactivateUser(parentId, isActive);
+	}
 }
