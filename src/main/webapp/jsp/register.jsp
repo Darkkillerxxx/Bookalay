@@ -226,13 +226,13 @@
 			            <label class="form-label">Favorite Genres * (Select all that apply)</label>
 			            <div class="row mb-3">
 			                <div class="col-md-4"><input name="genres" value="Fiction" type="checkbox"> Fiction</div>
-			                <div class="col-md-4"><input name="Genres" value="Non-fiction" type="checkbox"> Non-fiction</div>
-			                <div class="col-md-4"><input name="Genres" value="Fantasy" type="checkbox"> Fantasy</div>
-			                <div class="col-md-4"><input name="Genres" value="Mystery" type="checkbox"> Mystery</div>
-			                <div class="col-md-4"><input name="Genres" value="Science Fiction" type="checkbox"> Science Fiction</div>
-			                <div class="col-md-4"><input name="Genres" value="Biography" type="checkbox"> Biography</div>
-			                <div class="col-md-4"><input name="Genres" value="Comics" type="checkbox"> Comics</div>
-			                <div class="col-md-4"><input name="Genres" value="Poetry" type="checkbox"> Poetry</div>
+			                <div class="col-md-4"><input name="genres" value="Non-fiction" type="checkbox"> Non-fiction</div>
+			                <div class="col-md-4"><input name="genres" value="Fantasy" type="checkbox"> Fantasy</div>
+			                <div class="col-md-4"><input name="genres" value="Mystery" type="checkbox"> Mystery</div>
+			                <div class="col-md-4"><input name="genres" value="Science Fiction" type="checkbox"> Science Fiction</div>
+			                <div class="col-md-4"><input name="genres" value="Biography" type="checkbox"> Biography</div>
+			                <div class="col-md-4"><input name="genres" value="Comics" type="checkbox"> Comics</div>
+			                <div class="col-md-4"><input name="genres" value="Poetry" type="checkbox"> Poetry</div>
 			            </div>
 			
 			            <label class="form-label">Reading Frequency</label>
